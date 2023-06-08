@@ -14,6 +14,6 @@ async def compute_move(
     stockfish: Stockfish = Depends(get_stockfish),
 ) -> MoveOutcome:
     return execute_strategy(
-        move_request=strategy_request,
+        strategy_request=strategy_request,
         stockfish=stockfish,
     )

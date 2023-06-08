@@ -151,9 +151,11 @@ def get_kamikaze_move(*, board: Board) -> MoveOutcome:
 
 
 def execute_strategy(
-    *, move_request: StrategyRequest, stockfish: Stockfish
+    *,
+    strategy_request: StrategyRequest,
+    stockfish: Stockfish,
 ) -> MoveOutcome:
-    board = Board(fen=move_request.fen_string)
+    board = Board(fen=strategy_request.fen_string)
 
     if board.legal_moves.count() == 0:
         outcome = board.outcome()
@@ -169,34 +171,34 @@ def execute_strategy(
 
         raise Exception("Invalid outcome")
 
-    if move_request.strategy_name.startswith("stockfish"):
+    if strategy_request.strategy_name.startswith("stockfish"):
         return get_stockfish_move(
             stockfish=stockfish,
-            strategy_name=move_request.strategy_name,
-            fen_string=move_request.fen_string,
+            strategy_name=strategy_request.strategy_name,
+            fen_string=strategy_request.fen_string,
         )
 
-    if move_request.strategy_name == "random":
+    if strategy_request.strategy_name == "random":
         return get_random_move(
             board=board,
         )
 
-    if move_request.strategy_name == "pacifist":
+    if strategy_request.strategy_name == "pacifist":
         return get_pacifist_move(
             board=board,
         )
 
-    if move_request.strategy_name == "pawnstorm":
+    if strategy_request.strategy_name == "pawnstorm":
         return get_pawnstorm_move(
             board=board,
         )
 
-    if move_request.strategy_name == "predator":
+    if strategy_request.strategy_name == "predator":
         return get_predator_move(
             board=board,
         )
 
-    if move_request.strategy_name == "kamikaze":
+    if strategy_request.strategy_name == "kamikaze":
         return get_kamikaze_move(
             board=board,
         )

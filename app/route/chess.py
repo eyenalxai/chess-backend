@@ -2,18 +2,18 @@ from fastapi import APIRouter, Depends
 from stockfish import Stockfish
 
 from app.util.fish import get_stockfish
-from app.util.move import get_move
-from app.util.schema import ChessMove, MoveRequest
+from app.util.move import execute_strategy
+from app.util.schema import MoveOutcome, StrategyRequest
 
 chess_router = APIRouter(tags=["chess"])
 
 
-@chess_router.post("/chess", response_model=ChessMove)
-async def get_best_move(
-    move_request: MoveRequest,
+@chess_router.post("/chess", response_model=MoveOutcome)
+async def compute_move(
+    strategy_request: StrategyRequest,
     stockfish: Stockfish = Depends(get_stockfish),
-) -> ChessMove:
-    return get_move(
-        move_request=move_request,
+) -> MoveOutcome:
+    return execute_strategy(
+        move_request=strategy_request,
         stockfish=stockfish,
     )

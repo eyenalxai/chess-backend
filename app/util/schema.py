@@ -14,7 +14,7 @@ StrategyName = Literal[
 ]
 
 
-class MoveRequest(Immutable):
+class StrategyRequest(Immutable):
     fen_string: str
     strategy_name: StrategyName
 
@@ -41,7 +41,7 @@ class GameOutcome(Immutable):
     ended: bool
 
 
-class ChessMove(Immutable):
+class MoveOutcome(Immutable):
     from_square: str | None = None
     to_square: str | None = None
     promotion: str | None = None

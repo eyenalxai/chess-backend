@@ -1,2 +1,3 @@
 /app/util/stockfish
 /.idea
+/.env

@@ -41,8 +41,12 @@ class GameOutcome(Immutable):
     ended: bool
 
 
-class MoveOutcome(Immutable):
-    from_square: str | None = None
-    to_square: str | None = None
+class ChessMove(Immutable):
+    from_square: str
+    to_square: str
     promotion: str | None = None
+
+
+class MoveOutcome(Immutable):
+    chess_move: ChessMove | None = None
     game_outcome: GameOutcome | None = None

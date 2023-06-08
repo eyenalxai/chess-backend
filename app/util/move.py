@@ -10,6 +10,7 @@ from app.util.schema import (
     GameOutcome,
     Winner,
     Reason,
+    ChessMove,
 )
 
 TERMINATION_REASON: dict[Termination, Reason] = {
@@ -29,15 +30,19 @@ TERMINATION_REASON: dict[Termination, Reason] = {
 def parse_move(*, move: str) -> MoveOutcome:
     if len(move) == 4:
         return MoveOutcome(
-            from_square=move[:2],
-            to_square=move[2:],
+            chess_move=ChessMove(
+                from_square=move[:2],
+                to_square=move[2:],
+            )
         )
 
     if len(move) == 5:
         return MoveOutcome(
-            from_square=move[:2],
-            to_square=move[2:4],
-            promotion=move[4],
+            chess_move=ChessMove(
+                from_square=move[:2],
+                to_square=move[2:4],
+                promotion=move[4],
+            )
         )
 
     raise Exception("Invalid best move")

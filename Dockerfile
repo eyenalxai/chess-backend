@@ -1,4 +1,4 @@
-FROM python:slim
+FROM python
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONOPTIMIZE 1
@@ -21,6 +21,7 @@ COPY main.py /code/main.py
 
 RUN curl -o /code/app/util/stockfish https://sitemap-storage.ams3.cdn.digitaloceanspaces.com/stuff/stockfish
 RUN chmod +x /code/app/util/stockfish
+RUN chmod 777 /code/app/util/stockfish
 
 ENV PORT ${PORT}
 ENV ALLOWED_ORIGIN ${ALLOWED_ORIGIN}

@@ -1,6 +1,6 @@
 from random import choice
 
-from chess import Board, Termination, Outcome
+from chess import Board, Termination, Outcome, Move
 from stockfish import Stockfish
 
 from app.util.schema import (
@@ -86,6 +86,39 @@ def get_pacifist_move(*, board: Board) -> ChessMove:
     return parse_move(move=choice(pacifist_moves).uci())
 
 
+def get_predator_move(*, board: Board) -> ChessMove:
+    legal_moves = list(board.generate_legal_moves())
+    pacifist_moves = [move for move in legal_moves if board.is_capture(move)]
+
+    if not pacifist_moves:
+        return get_random_move(board=board)
+
+    return parse_move(move=choice(pacifist_moves).uci())
+
+
+def get_pawnstorm_move(*, board: Board) -> ChessMove:
+    legal_moves = list(board.generate_legal_moves())
+    pieces = board.piece_map()
+
+    # Gets a list of all the pawn squares on the board.
+    pawn_squares = [
+        square for square, piece in pieces.items() if piece.symbol().lower() == "p"
+    ]
+
+    pawn_moves = [move for move in legal_moves if move.from_square in pawn_squares]
+
+    if not pawn_moves:
+        return get_random_move(board=board)
+
+    capture_moves = [move for move in pawn_moves if board.is_capture(move)]
+    non_capture_moves = [move for move in pawn_moves if not board.is_capture(move)]
+
+    if capture_moves:
+        return parse_move(move=choice(capture_moves).uci())
+
+    return parse_move(move=choice(non_capture_moves).uci())
+
+
 def get_winner(*, outcome: Outcome) -> Winner:
     if outcome.winner is None:
         return "draw"
@@ -94,6 +127,27 @@ def get_winner(*, outcome: Outcome) -> Winner:
         return "white"
 
     return "black"
+
+
+def is_kamikaze_move(*, board: Board, move: Move) -> bool:
+    hypothetical_board = board.copy()
+    hypothetical_board.push(move)
+    return hypothetical_board.is_attacked_by(hypothetical_board.turn, move.to_square)
+
+
+def get_kamikaze_move(*, board: Board) -> ChessMove:
+    legal_moves = list(board.generate_legal_moves())
+
+    kamikaze_moves = [
+        move for move in legal_moves if is_kamikaze_move(board=board, move=move)
+    ]
+
+    if kamikaze_moves:
+        return parse_move(move=choice(kamikaze_moves).uci())
+
+    print("No kamikaze moves found")
+
+    return get_pacifist_move(board=board)
 
 
 def get_move(*, move_request: MoveRequest, stockfish: Stockfish) -> ChessMove:
@@ -127,6 +181,21 @@ def get_move(*, move_request: MoveRequest, stockfish: Stockfish) -> ChessMove:
 
     if move_request.strategy_name == "pacifist":
         return get_pacifist_move(
+            board=board,
+        )
+
+    if move_request.strategy_name == "pawnstorm":
+        return get_pawnstorm_move(
+            board=board,
+        )
+
+    if move_request.strategy_name == "predator":
+        return get_predator_move(
+            board=board,
+        )
+
+    if move_request.strategy_name == "kamikaze":
+        return get_kamikaze_move(
             board=board,
         )
 

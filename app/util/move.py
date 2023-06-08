@@ -49,13 +49,18 @@ def parse_move(*, move: str) -> MoveOutcome:
 
 
 def get_time_for_strategy(strategy: StrategyName) -> int:
+    if strategy == "stockfish-1":
+        return 1
+    if strategy == "stockfish-10":
+        return 10
     if strategy == "stockfish-100":
         return 100
     if strategy == "stockfish-500":
         return 500
     if strategy == "stockfish-1000":
         return 1000
-    return 0
+
+    raise Exception("Invalid strategy")
 
 
 def get_stockfish_move(

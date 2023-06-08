@@ -5,7 +5,7 @@ ENV PYTHONOPTIMIZE 1
 
 WORKDIR /code
 
-RUN apt update && apt install -y curl
+RUN apt update && apt install -y curl stockfish
 
 RUN pip install poetry
 
@@ -18,10 +18,6 @@ RUN poetry install --without dev
 
 COPY ./app /code/app
 COPY main.py /code/main.py
-
-RUN curl -o /code/app/util/stockfish_15 https://sitemap-storage.ams3.cdn.digitaloceanspaces.com/stuff/stockfish_15
-RUN chmod +x /code/app/util/stockfish_15
-RUN chmod 777 /code/app/util/stockfish_15
 
 ENV PORT ${PORT}
 ENV ALLOWED_ORIGIN ${ALLOWED_ORIGIN}

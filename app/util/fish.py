@@ -1,13 +1,15 @@
-import os
+import subprocess
 
 from stockfish import Stockfish
 
-fish = Stockfish(
-    path=os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "stockfish_15",
-    )
-)
+
+def get_executable_path(*, executable: str) -> str:
+    path = subprocess.check_output(["which", executable])
+    print(path.decode().strip())
+    return path.decode().strip()
+
+
+fish = Stockfish(path=get_executable_path(executable="stockfish"))
 fish.set_skill_level(20)
 
 

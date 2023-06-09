@@ -11,9 +11,9 @@ class ApiSettings(BaseSettings):
     def allowed_origins(self: "ApiSettings") -> list[str]:
         if not self.is_local:
             return [
-                "https://{frontend_domain}".format(frontend_domain=self.allowed_origin)
+                "https://{allowed_origin}".format(allowed_origin=self.allowed_origin)
             ]
-        return ["http://{frontend_domain}".format(frontend_domain=self.allowed_origin)]
+        return ["http://{allowed_origin}".format(allowed_origin=self.allowed_origin)]
 
 
 api_settings = ApiSettings()

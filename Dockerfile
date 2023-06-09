@@ -18,6 +18,7 @@ RUN poetry install --without dev
 
 COPY ./app /code/app
 COPY main.py /code/main.py
+COPY api.py /code/api.py
 
 ENV PORT ${PORT}
 ENV ALLOWED_ORIGIN ${ALLOWED_ORIGIN}

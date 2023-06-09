@@ -25,4 +25,4 @@ ENV ALLOWED_ORIGIN ${ALLOWED_ORIGIN}
 ARG EXPOSE_PORT=${PORT}
 EXPOSE ${EXPOSE_PORT}
 
-CMD ["poetry", "run", "python", "main.py"]
+CMD ["poetry", "run", "python", "api.py"]

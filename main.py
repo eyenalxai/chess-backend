@@ -8,9 +8,7 @@ from app.util.settings import api_settings
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "{allowed_origin}".format(allowed_origin=api_settings.allowed_origin),
-    ],
+    allow_origins=api_settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

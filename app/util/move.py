@@ -155,8 +155,6 @@ def get_kamikaze_move(*, board: Board) -> MoveOutcome:
     if kamikaze_moves:
         return parse_move(move=choice(kamikaze_moves).uci())
 
-    print("No kamikaze moves found")
-
     return get_pacifist_move(board=board)
 
 

@@ -1,6 +1,6 @@
 from random import choice
 
-from chess import Board, Termination, Outcome, Move
+from chess import Board, Termination, Outcome, Move, square_name
 from stockfish import Stockfish
 
 from app.util.schema import (
@@ -160,14 +160,8 @@ def get_kamikaze_move(*, board: Board) -> MoveOutcome:
     return get_pacifist_move(board=board)
 
 
-def execute_strategy(
-    *,
-    strategy_request: StrategyRequest,
-    stockfish: Stockfish,
-) -> MoveOutcome:
-    board = Board(fen=strategy_request.fen_string)
-
-    if board.legal_moves.count() == 0:
+def get_game_outcome(*, board: Board) -> MoveOutcome | None:
+    if board.is_game_over():
         outcome = board.outcome()
         if outcome is not None:
             winner = get_winner(outcome=outcome)
@@ -176,10 +170,23 @@ def execute_strategy(
                 return MoveOutcome(
                     game_outcome=GameOutcome(winner=winner, reason=reason, ended=True)
                 )
-
             raise Exception("Invalid reason")
-
         raise Exception("Invalid outcome")
+
+    return None
+
+
+def execute_strategy(
+    *,
+    strategy_request: StrategyRequest,
+    stockfish: Stockfish,
+) -> MoveOutcome:
+    board = Board(fen=strategy_request.fen_string)
+
+    game_outcome = get_game_outcome(board=board)
+
+    if game_outcome is not None:
+        return game_outcome
 
     if strategy_request.strategy_name.startswith("stockfish"):
         return get_stockfish_move(
@@ -214,3 +221,38 @@ def execute_strategy(
         )
 
     raise Exception("Invalid strategy")
+
+
+def execute_move(
+    *,
+    chess_move: ChessMove,
+    strategy_request: StrategyRequest,
+) -> MoveOutcome:
+    board = Board(fen=strategy_request.fen_string)
+
+    uci_string = chess_move.from_square + chess_move.to_square
+    if chess_move.promotion:
+        uci_string += chess_move.promotion
+
+    move = Move.from_uci(uci_string)
+
+    legal_move_ucis = [legal_move.uci() for legal_move in board.legal_moves]
+
+    if move.uci() not in legal_move_ucis and move.uci()[0:4] not in legal_move_ucis:
+        raise Exception("Invalid move")
+
+    board.push(move)
+
+    game_outcome = get_game_outcome(board=board)
+
+    if game_outcome is not None:
+        return game_outcome
+
+    return MoveOutcome(
+        chess_move=ChessMove(
+            from_square=square_name(square=move.from_square),
+            to_square=square_name(square=move.to_square),
+            promotion=chess_move.promotion,
+        ),
+        game_outcome=None,
+    )

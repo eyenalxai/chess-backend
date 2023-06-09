@@ -27,21 +27,23 @@ TERMINATION_REASON: dict[Termination, Reason] = {
 }
 
 
-def parse_move(*, move: str) -> MoveOutcome:
-    if len(move) == 4:
+def parse_move(*, move: Move, board: Board) -> MoveOutcome:
+    board.push(move=move)
+    move_uci = move.uci()
+    if len(move_uci) == 4:
         return MoveOutcome(
             chess_move=ChessMove(
-                from_square=move[:2],
-                to_square=move[2:],
+                from_square=move_uci[:2], to_square=move_uci[2:], fen_string=board.fen()
             )
         )
 
-    if len(move) == 5:
+    if len(move_uci) == 5:
         return MoveOutcome(
             chess_move=ChessMove(
-                from_square=move[:2],
-                to_square=move[2:4],
-                promotion=move[4],
+                from_square=move_uci[:2],
+                to_square=move_uci[2:4],
+                promotion=move_uci[4],
+                fen_string=board.fen(),
             )
         )
 
@@ -73,17 +75,19 @@ def get_stockfish_move(
     time = get_time_for_strategy(strategy=strategy_name)
     best_move = stockfish.get_best_move_time(time=time)
 
+    board = Board(fen=stockfish.get_fen_position())
+
     if not best_move:
         raise Exception("No best move found")
 
-    return parse_move(move=best_move)
+    return parse_move(move=board.parse_uci(uci=best_move), board=board)
 
 
 def get_random_move(
     *,
     board: Board,
 ) -> MoveOutcome:
-    return parse_move(move=choice(list(board.generate_legal_moves())).uci())
+    return parse_move(move=choice(list(board.generate_legal_moves())), board=board)
 
 
 def get_pacifist_move(*, board: Board) -> MoveOutcome:
@@ -93,7 +97,7 @@ def get_pacifist_move(*, board: Board) -> MoveOutcome:
     if not pacifist_moves:
         return get_random_move(board=board)
 
-    return parse_move(move=choice(pacifist_moves).uci())
+    return parse_move(move=choice(pacifist_moves), board=board)
 
 
 def get_predator_move(*, board: Board) -> MoveOutcome:
@@ -103,7 +107,7 @@ def get_predator_move(*, board: Board) -> MoveOutcome:
     if not pacifist_moves:
         return get_random_move(board=board)
 
-    return parse_move(move=choice(pacifist_moves).uci())
+    return parse_move(move=choice(pacifist_moves), board=board)
 
 
 def get_pawnstorm_move(*, board: Board) -> MoveOutcome:
@@ -124,9 +128,9 @@ def get_pawnstorm_move(*, board: Board) -> MoveOutcome:
     non_capture_moves = [move for move in pawn_moves if not board.is_capture(move)]
 
     if capture_moves:
-        return parse_move(move=choice(capture_moves).uci())
+        return parse_move(move=choice(capture_moves), board=board)
 
-    return parse_move(move=choice(non_capture_moves).uci())
+    return parse_move(move=choice(non_capture_moves), board=board)
 
 
 def get_winner(*, outcome: Outcome) -> Winner:
@@ -153,7 +157,7 @@ def get_kamikaze_move(*, board: Board) -> MoveOutcome:
     ]
 
     if kamikaze_moves:
-        return parse_move(move=choice(kamikaze_moves).uci())
+        return parse_move(move=choice(kamikaze_moves), board=board)
 
     print("No kamikaze moves found")
 
@@ -253,6 +257,7 @@ def execute_move(
             from_square=square_name(square=move.from_square),
             to_square=square_name(square=move.to_square),
             promotion=chess_move.promotion,
+            fen_string=board.fen(),
         ),
         game_outcome=None,
     )

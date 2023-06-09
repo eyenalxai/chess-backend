@@ -47,6 +47,7 @@ class ChessMove(Immutable):
     from_square: str
     to_square: str
     promotion: str | None = None
+    fen_string: str
 
 
 class MoveOutcome(Immutable):

@@ -40,12 +40,22 @@ def get_time_for_strategy(strategy: StrategyName) -> int:
 
 
 def is_kamikaze_move(*, board: Board, move: Move) -> bool:
+    if not board.is_capture(move):
+        return False
+
     hypothetical_board = board.copy()
-    hypothetical_board.push(move)
-    return hypothetical_board.is_attacked_by(hypothetical_board.turn, move.to_square)
+    hypothetical_board.push(move=move)
+
+    if hypothetical_board.is_attacked_by(
+        color=not hypothetical_board.turn,
+        square=move.to_square,
+    ):
+        return True
+
+    return False
 
 
 def is_black_square(square: Square) -> bool:
-    file = square_file(square)
-    rank = square_rank(square)
+    file = square_file(square=square)
+    rank = square_rank(square=square)
     return (file + rank) % 2 != 0

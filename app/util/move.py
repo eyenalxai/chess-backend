@@ -19,11 +19,12 @@ from app.util.strategy import (
     get_pawnstorm_move,
     get_predator_move,
     get_kamikaze_move,
-    get_same_color_move,
+    get_chroma_move,
     get_stockfish_move,
     get_random_move,
     get_pacifist_move,
-    get_opposite_color_move,
+    get_contrast_move,
+    get_mirror_move,
 )
 
 TERMINATION_REASON: dict[Termination, Reason] = {
@@ -110,13 +111,18 @@ def execute_strategy(
             board=board,
         )
 
-    if strategy_request.strategy_name == "same-color":
-        return get_same_color_move(
+    if strategy_request.strategy_name == "chroma":
+        return get_chroma_move(
             board=board,
         )
 
-    if strategy_request.strategy_name == "opposite-color":
-        return get_opposite_color_move(
+    if strategy_request.strategy_name == "contrast":
+        return get_contrast_move(
+            board=board,
+        )
+
+    if strategy_request.strategy_name == "mirror":
+        return get_mirror_move(
             board=board,
         )
 

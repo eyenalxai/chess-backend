@@ -1,13 +1,13 @@
-from random import choice
+from random import choice, shuffle
 
-from chess import Board, WHITE, BLACK
+from chess import Board, WHITE, BLACK, square_mirror, square_distance
 from stockfish import Stockfish
 
 from app.util.helper import (
-    is_kamikaze_move,
     is_black_square,
     get_time_for_strategy,
     parse_move,
+    is_kamikaze_move,
 )
 from app.util.schema import MoveOutcome, StrategyName
 
@@ -37,7 +37,7 @@ def get_random_move(
 
 def get_pacifist_move(*, board: Board) -> MoveOutcome:
     legal_moves = list(board.generate_legal_moves())
-    pacifist_moves = [move for move in legal_moves if not board.is_capture(move)]
+    pacifist_moves = [move for move in legal_moves if not board.is_capture(move=move)]
 
     if not pacifist_moves:
         return get_random_move(board=board)
@@ -47,7 +47,7 @@ def get_pacifist_move(*, board: Board) -> MoveOutcome:
 
 def get_predator_move(*, board: Board) -> MoveOutcome:
     legal_moves = list(board.generate_legal_moves())
-    pacifist_moves = [move for move in legal_moves if board.is_capture(move)]
+    pacifist_moves = [move for move in legal_moves if board.is_capture(move=move)]
 
     if not pacifist_moves:
         return get_random_move(board=board)
@@ -68,8 +68,8 @@ def get_pawnstorm_move(*, board: Board) -> MoveOutcome:
     if not pawn_moves:
         return get_random_move(board=board)
 
-    capture_moves = [move for move in pawn_moves if board.is_capture(move)]
-    non_capture_moves = [move for move in pawn_moves if not board.is_capture(move)]
+    capture_moves = [move for move in pawn_moves if board.is_capture(move=move)]
+    non_capture_moves = [move for move in pawn_moves if not board.is_capture(move=move)]
 
     if capture_moves:
         return parse_move(move=choice(capture_moves).uci())
@@ -87,17 +87,17 @@ def get_kamikaze_move(*, board: Board) -> MoveOutcome:
     if kamikaze_moves:
         return parse_move(move=choice(kamikaze_moves).uci())
 
-    return get_pacifist_move(board=board)
+    return get_predator_move(board=board)
 
 
-def get_same_color_move(*, board: Board) -> MoveOutcome:
+def get_chroma_move(*, board: Board) -> MoveOutcome:
     legal_moves = list(board.generate_legal_moves())
 
     same_color_moves = [
         move
         for move in legal_moves
-        if (board.turn == WHITE and not is_black_square(move.to_square))
-        or (board.turn == BLACK and is_black_square(move.to_square))
+        if (board.turn == WHITE and not is_black_square(square=move.to_square))
+        or (board.turn == BLACK and is_black_square(square=move.to_square))
     ]
 
     if same_color_moves:
@@ -106,17 +106,49 @@ def get_same_color_move(*, board: Board) -> MoveOutcome:
     return get_random_move(board=board)
 
 
-def get_opposite_color_move(*, board: Board) -> MoveOutcome:
+def get_contrast_move(*, board: Board) -> MoveOutcome:
     legal_moves = list(board.generate_legal_moves())
 
     opposite_color_moves = [
         move
         for move in legal_moves
-        if (board.turn == WHITE and is_black_square(move.to_square))
-        or (board.turn == BLACK and not is_black_square(move.to_square))
+        if (board.turn == WHITE and is_black_square(square=move.to_square))
+        or (board.turn == BLACK and not is_black_square(square=move.to_square))
     ]
 
     if opposite_color_moves:
         return parse_move(move=choice(opposite_color_moves).uci())
+
+    return get_random_move(board=board)
+
+
+def get_mirror_move(*, board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+    pieces = board.piece_map()
+
+    current_player_pieces = {
+        sq: piece for sq, piece in pieces.items() if piece.color == board.turn
+    }
+
+    piece_mirror_positions = {
+        sq: square_mirror(sq) for sq in current_player_pieces.keys()
+    }
+
+    piece_keys = list(current_player_pieces.keys())
+    shuffle(piece_keys)
+
+    for piece_key in piece_keys:
+        current_piece_moves = [
+            move for move in legal_moves if move.from_square == piece_key
+        ]
+
+        if current_piece_moves:
+            best_move = min(
+                current_piece_moves,
+                key=lambda move: square_distance(
+                    move.to_square, piece_mirror_positions[move.from_square]
+                ),
+            )
+            return parse_move(move=best_move.uci())
 
     return get_random_move(board=board)

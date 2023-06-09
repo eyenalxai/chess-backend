@@ -1,3 +1,5 @@
+from typing import Callable
+
 from chess import (
     Board,
     Termination,
@@ -14,6 +16,7 @@ from app.util.schema import (
     Winner,
     Reason,
     ChessMove,
+    StrategyName,
 )
 from app.util.strategy import (
     get_pawnstorm_move,
@@ -25,6 +28,7 @@ from app.util.strategy import (
     get_pacifist_move,
     get_contrast_move,
     get_mirror_move,
+    get_fortify_move,
 )
 
 TERMINATION_REASON: dict[Termination, Reason] = {
@@ -79,6 +83,18 @@ def execute_strategy(
     if game_outcome is not None:
         return game_outcome
 
+    strategy_functions: dict[StrategyName, Callable[[Board], MoveOutcome]] = {
+        "random": get_random_move,
+        "pacifist": get_pacifist_move,
+        "pawnstorm": get_pawnstorm_move,
+        "predator": get_predator_move,
+        "kamikaze": get_kamikaze_move,
+        "chroma": get_chroma_move,
+        "contrast": get_contrast_move,
+        "mirror": get_mirror_move,
+        "fortify": get_fortify_move,
+    }
+
     if strategy_request.strategy_name.startswith("stockfish"):
         return get_stockfish_move(
             stockfish=stockfish,
@@ -86,45 +102,10 @@ def execute_strategy(
             fen_string=strategy_request.fen_string,
         )
 
-    if strategy_request.strategy_name == "random":
-        return get_random_move(
-            board=board,
-        )
+    strategy_function = strategy_functions.get(strategy_request.strategy_name)
 
-    if strategy_request.strategy_name == "pacifist":
-        return get_pacifist_move(
-            board=board,
-        )
-
-    if strategy_request.strategy_name == "pawnstorm":
-        return get_pawnstorm_move(
-            board=board,
-        )
-
-    if strategy_request.strategy_name == "predator":
-        return get_predator_move(
-            board=board,
-        )
-
-    if strategy_request.strategy_name == "kamikaze":
-        return get_kamikaze_move(
-            board=board,
-        )
-
-    if strategy_request.strategy_name == "chroma":
-        return get_chroma_move(
-            board=board,
-        )
-
-    if strategy_request.strategy_name == "contrast":
-        return get_contrast_move(
-            board=board,
-        )
-
-    if strategy_request.strategy_name == "mirror":
-        return get_mirror_move(
-            board=board,
-        )
+    if strategy_function:
+        return strategy_function(board)
 
     raise Exception("Invalid strategy")
 

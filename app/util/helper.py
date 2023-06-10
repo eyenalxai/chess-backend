@@ -1,6 +1,15 @@
-from chess import square_rank, square_file, Square, Move, Board
+from chess import (
+    PIECE_NAMES,
+    PIECE_SYMBOLS,
+    Board,
+    Move,
+    Piece,
+    Square,
+    square_file,
+    square_rank,
+)
 
-from app.util.schema import StrategyName, ChessMove, MoveOutcome
+from app.util.schema import ChessMove, MoveOutcome, StrategyName
 
 
 def parse_move(*, move: str) -> MoveOutcome:
@@ -59,3 +68,35 @@ def is_black_square(square: Square) -> bool:
     file = square_file(square=square)
     rank = square_rank(square=square)
     return (file + rank) % 2 != 0
+
+
+def get_piece_value(*, piece: Piece | None) -> int:
+    piece_values = {"P": 1, "N": 3, "B": 3, "R": 5, "Q": 9, "K": 100}
+
+    return piece_values.get(piece.symbol().upper(), 0) if piece else 0
+
+
+def get_best_capture(
+    *,
+    legal_moves: list[Move],
+    board: Board,
+) -> tuple[Move, int] | None:
+    captures: list[tuple[Move, int]] = [
+        (move, get_piece_value(piece=board.piece_at(move.to_square)))
+        for move in legal_moves
+        if board.is_capture(move)
+    ]
+    try:
+        return max(captures, key=lambda x: x[1])
+    except ValueError:
+        return None
+
+
+def get_piece_type(name: str | None) -> int | None:
+    if name is None:
+        return None
+    if name in PIECE_SYMBOLS:
+        return PIECE_SYMBOLS.index(name)
+    if name in PIECE_NAMES:
+        return PIECE_NAMES.index(name)
+    return None

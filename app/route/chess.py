@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
-from stockfish import Stockfish
+from stockfish import Stockfish  # type: ignore
 
 from app.util.fish import get_stockfish
-from app.util.move import execute_strategy, execute_move
-from app.util.schema import MoveOutcome, StrategyRequest, ChessMove
+from app.util.move import execute_move, execute_strategy
+from app.util.schema import ChessMove, MoveOutcome, StrategyRequest
 
 chess_router = APIRouter(tags=["chess"])
 

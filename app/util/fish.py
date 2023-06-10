@@ -1,6 +1,6 @@
 import os
 
-from stockfish import Stockfish
+from stockfish import Stockfish  # type: ignore
 
 from app.util.settings import api_settings
 

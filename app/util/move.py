@@ -1,34 +1,26 @@
 from typing import Callable
 
-from chess import (
-    Board,
-    Termination,
-    Outcome,
-    Move,
-    square_name,
-)
-from stockfish import Stockfish
+from chess import Board, Move, Outcome, Termination, square_name
+from stockfish import Stockfish  # type: ignore
 
 from app.util.schema import (
-    MoveOutcome,
-    StrategyRequest,
-    GameOutcome,
-    Winner,
-    Reason,
     ChessMove,
+    GameOutcome,
+    MoveOutcome,
+    Reason,
     StrategyName,
+    StrategyRequest,
+    Winner,
 )
 from app.util.strategy import (
+    get_chroma_move,
+    get_contrast_move,
+    get_kamikaze_move,
+    get_pacifist_move,
     get_pawnstorm_move,
     get_predator_move,
-    get_kamikaze_move,
-    get_chroma_move,
-    get_stockfish_move,
     get_random_move,
-    get_pacifist_move,
-    get_contrast_move,
-    get_mirror_move,
-    get_fortify_move,
+    get_stockfish_move,
 )
 
 TERMINATION_REASON: dict[Termination, Reason] = {
@@ -84,15 +76,13 @@ def execute_strategy(
         return game_outcome
 
     strategy_functions: dict[StrategyName, Callable[[Board], MoveOutcome]] = {
-        "random": get_random_move,
+        "random": get_random_move,  # type: ignore
         "pacifist": get_pacifist_move,
         "pawnstorm": get_pawnstorm_move,
         "predator": get_predator_move,
         "kamikaze": get_kamikaze_move,
         "chroma": get_chroma_move,
         "contrast": get_contrast_move,
-        "mirror": get_mirror_move,
-        "fortify": get_fortify_move,
     }
 
     if strategy_request.strategy_name.startswith("stockfish"):

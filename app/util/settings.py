@@ -16,4 +16,4 @@ class ApiSettings(BaseSettings):
         return ["http://{allowed_origin}".format(allowed_origin=self.allowed_origin)]
 
 
-api_settings = ApiSettings()
+api_settings = ApiSettings()  # type: ignore

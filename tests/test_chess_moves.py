@@ -1,19 +1,22 @@
 from collections.abc import Callable
 
 from chess import Board, Move, parse_square
+from stockfish import Stockfish
 
+from app.util.fish import get_stockfish
 from app.util.helper import get_piece_type
-from app.util.move import get_fortify_move, get_predator_move
+from app.util.move import get_sidestep_move, get_snatcher_move
 from app.util.schema import MoveOutcome
 
 
 def execute_move(
-    get_move: Callable[[Board], MoveOutcome],
+    get_move: Callable[[Stockfish, Board], MoveOutcome],
     starting_fen: str,
     ending_fen: str,
 ) -> bool:
     board = Board(fen=starting_fen)
-    move = get_move(board)
+    stockfish = get_stockfish()
+    move = get_move(stockfish, board)
 
     if not move.chess_move:
         raise Exception("No best move found")
@@ -26,20 +29,26 @@ def execute_move(
         )
     )
 
-    print("Current FEN: ", board.fen())
-
     return board.fen() == ending_fen
 
 
-def test_get_predator_move() -> None:
-    starting_fen = "rnb1k1n1/ppp1pppp/8/4q1b1/3p3r/5N2/PPPPPPPP/RNBQKB1R w KQq - 0 1"
-    ending_fen = "rnb1k1n1/ppp1pppp/8/4N1b1/3p3r/8/PPPPPPPP/RNBQKB1R b KQq - 0 1"
+def test_get_sidestep_move() -> None:
+    starting_fen = "k7/8/2q1p1n1/8/B5B1/8/2B5/K7 b - - 0 1"
+    ending_fen = "k7/8/4p1n1/8/q5B1/8/2B5/K7 w - - 0 2"
 
-    assert execute_move(get_predator_move, starting_fen, ending_fen)
+    assert execute_move(
+        get_move=get_sidestep_move,
+        starting_fen=starting_fen,
+        ending_fen=ending_fen,
+    )
 
 
-def test_get_fortify_move() -> None:
-    starting_fen = "4k3/8/5q2/r3P2b/P2P3P/n7/8/1P3K2 w - - 0 1"
-    ending_fen = "4k3/8/5P2/r6b/P2P3P/n7/8/1P3K2 b - - 0 1"
+def test_get_snatcher_move() -> None:
+    starting_fen = "k7/8/2q1p1n1/8/B5B1/8/2B5/K7 w - - 0 1"
+    ending_fen = "k7/8/2B1p1n1/8/6B1/8/2B5/K7 b - - 0 1"
 
-    assert execute_move(get_fortify_move, starting_fen, ending_fen)
+    assert execute_move(
+        get_move=get_snatcher_move,
+        starting_fen=starting_fen,
+        ending_fen=ending_fen,
+    )

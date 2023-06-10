@@ -6,7 +6,6 @@ class ApiSettings(BaseSettings):
     allowed_origin: str = Field(..., env="ALLOWED_ORIGIN")
     is_local: bool = Field(env="IS_LOCAL", default=True)
     api_workers: int = Field(env="API_WORKERS", default=4)
-    search_depth: int = Field(env="SEARCH_DEPTH", default=2)
 
     @property
     def allowed_origins(self: "ApiSettings") -> list[str]:

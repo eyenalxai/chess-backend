@@ -1,18 +1,13 @@
 from typing import Callable
 
 from chess import Board, Move, square_name
-from stockfish import Stockfish  # type: ignore
+from stockfish import Stockfish
 
 from app.util.helper import count_opponent_pieces, get_game_outcome
 from app.util.move import (
-    get_chroma_move,
-    get_contrast_move,
-    get_fortify_move,
-    get_kamikaze_move,
-    get_pacifist_move,
-    get_pawnstorm_move,
-    get_predator_move,
     get_random_move,
+    get_sidestep_move,
+    get_snatcher_move,
     get_stockfish_move,
 )
 from app.util.schema import ChessMove, MoveOutcome, StrategyName, StrategyRequest
@@ -40,15 +35,12 @@ def execute_strategy(
     if game_outcome is not None:
         return game_outcome
 
-    strategy_functions: dict[StrategyName, Callable[[Board], MoveOutcome]] = {
+    strategy_functions: dict[
+        StrategyName, Callable[[Stockfish, Board], MoveOutcome]
+    ] = {
         "random": get_random_move,
-        "pacifist": get_pacifist_move,
-        "pawnstorm": get_pawnstorm_move,
-        "predator": get_predator_move,
-        "kamikaze": get_kamikaze_move,
-        "fortify": get_fortify_move,
-        "chroma": get_chroma_move,
-        "contrast": get_contrast_move,
+        "sidestep": get_sidestep_move,
+        "snatcher": get_snatcher_move,
     }
 
     if strategy_request.strategy_name.startswith("stockfish"):
@@ -61,7 +53,7 @@ def execute_strategy(
     strategy_function = strategy_functions.get(strategy_request.strategy_name)
 
     if strategy_function:
-        return strategy_function(board)
+        return strategy_function(stockfish, board)
 
     raise Exception("Invalid strategy")
 

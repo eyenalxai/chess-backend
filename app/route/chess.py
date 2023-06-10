@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from stockfish import Stockfish  # type: ignore
+from stockfish import Stockfish
 
 from app.util.execute import execute_move, execute_strategy
 from app.util.fish import get_stockfish

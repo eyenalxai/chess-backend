@@ -4,13 +4,8 @@ from app.config.pydantic import Immutable
 
 StrategyName = Literal[
     "random",
-    "pacifist",
-    "predator",
-    "pawnstorm",
-    "kamikaze",
-    "fortify",
-    "chroma",
-    "contrast",
+    "sidestep",
+    "snatcher",
     "stockfish-1",
     "stockfish-10",
     "stockfish-100",
@@ -43,7 +38,6 @@ Reason = Literal[
 class GameOutcome(Immutable):
     winner: Winner
     reason: Reason
-    ended: bool
 
 
 class ChessMove(Immutable):

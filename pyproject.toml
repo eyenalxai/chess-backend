@@ -26,3 +26,51 @@ pytest = "^7.3.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.mypy]
+exclude = [".git", ".idea", ".mypy_cache", ".pytest_cache", ".ruff_cache"]
+pretty = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["stockfish.*"]
+ignore_missing_imports = true
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+exclude = [".git", ".idea", ".mypy_cache", ".pytest_cache", ".ruff_cache"]
+line-length = 88
+
+[tool.ruff]
+exclude = [".git", ".idea", ".mypy_cache", ".pytest_cache", ".ruff_cache"]
+
+select = ["E", "F"]
+ignore = []
+
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+unfixable = []
+
+line-length = 88
+
+target-version = "py311"
+
+[tool.vulture]
+exclude = [".git", ".idea", ".mypy_cache", ".pytest_cache", ".ruff_cache"]
+ignore_names = [
+    "Config",
+    "frozen",
+    "compute_move",
+    "process_move",
+    "health_check",
+]
+ignore_decorators = [
+    "@streamer_router.*",
+    "@health_router.*",
+    "@validator"
+]

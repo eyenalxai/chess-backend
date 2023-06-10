@@ -1,6 +1,6 @@
 import os
 
-from stockfish import Stockfish  # type: ignore
+from stockfish import Stockfish
 
 from app.util.settings import api_settings
 
@@ -13,4 +13,4 @@ fish.set_skill_level(20)
 
 
 def get_stockfish() -> Stockfish:
-    yield fish
+    return fish

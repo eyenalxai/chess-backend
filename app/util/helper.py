@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 from chess import (
     PIECE_NAMES,
     PIECE_SYMBOLS,
@@ -6,10 +8,7 @@ from chess import (
     Move,
     Outcome,
     Piece,
-    Square,
     Termination,
-    square_file,
-    square_rank,
 )
 
 from app.util.schema import (
@@ -34,7 +33,82 @@ TERMINATION_REASON: dict[Termination, Reason] = {
     Termination.VARIANT_DRAW: "variant_draw",
 }
 
-PIECE_VALUES = {"P": 1, "N": 3, "B": 3, "R": 5, "Q": 9, "K": 100}
+PIECE_VALUES = {None: 0, "p": 1, "n": 3, "b": 3, "r": 5, "q": 9, "k": 100}
+
+
+def get_piece_value(*, piece: Piece) -> int:
+    piece_symbol = piece.symbol().lower()
+
+    if piece_symbol in PIECE_SYMBOLS:
+        return PIECE_VALUES[piece_symbol]
+
+    raise Exception("Invalid piece")
+
+
+def get_piece_value_for_player(*, piece: Piece, player_color: bool) -> int:
+    piece_symbol = piece.symbol().lower()
+
+    if piece_symbol in PIECE_SYMBOLS:
+        if piece.color == player_color:
+            return get_piece_value(piece=piece)
+
+        return -get_piece_value(piece=piece)
+
+    raise Exception("Invalid piece")
+
+
+def evaluate_board(*, board: Board, player_color: bool) -> int:
+    value = 0
+
+    for square in range(64):
+        piece = board.piece_at(square=square)
+
+        if piece is not None:
+            value += get_piece_value_for_player(piece=piece, player_color=player_color)
+
+    return value
+
+
+def simulate_move_and_evaluate(*, board: Board, move: Move, player_color: bool) -> int:
+    hypothetical_board = board.copy(stack=False)
+    hypothetical_board.push(move=move)
+    return evaluate_board(board=hypothetical_board, player_color=player_color)
+
+
+class MoveEvaluation(NamedTuple):
+    move: Move
+    value: int
+
+
+def get_move_with_highest_eval(
+    *,
+    board: Board,
+    moves: list[Move],
+    player_color: bool,
+) -> Move:
+    move_values = [
+        MoveEvaluation(
+            move=move,
+            value=simulate_move_and_evaluate(
+                board=board,
+                move=move,
+                player_color=player_color,
+            ),
+        )
+        for move in moves
+    ]
+
+    return max(move_values, key=lambda move_value: move_value.value).move
+
+
+def get_pieces_under_attack(*, board: Board, player_color: bool) -> list[int]:
+    return [
+        square
+        for square in SQUARES
+        if board.is_attacked_by(color=not player_color, square=square)
+        and (piece := board.piece_at(square=square)) is not None
+        and piece.color == player_color
+    ]
 
 
 def get_game_outcome(*, board: Board) -> MoveOutcome | None:
@@ -48,7 +122,6 @@ def get_game_outcome(*, board: Board) -> MoveOutcome | None:
                     game_outcome=GameOutcome(
                         winner=winner,
                         reason=reason,
-                        ended=True,
                     )
                 )
             raise Exception("Invalid reason")
@@ -101,48 +174,6 @@ def get_time_for_stockfish_strategy(strategy: StrategyName) -> int:
         return 1000
 
     raise Exception("Invalid strategy")
-
-
-def is_kamikaze_move(*, board: Board, move: Move) -> bool:
-    if not board.is_capture(move=move):
-        return False
-
-    hypothetical_board = board.copy()
-    hypothetical_board.push(move=move)
-
-    if hypothetical_board.is_attacked_by(
-        color=not hypothetical_board.turn,
-        square=move.to_square,
-    ):
-        return True
-
-    return False
-
-
-def is_black_square(square: Square) -> bool:
-    file = square_file(square=square)
-    rank = square_rank(square=square)
-    return (file + rank) % 2 != 0
-
-
-def get_piece_value(*, piece: Piece | None) -> int:
-    return PIECE_VALUES.get(piece.symbol().upper(), 0) if piece else 0
-
-
-def get_best_capture(
-    *,
-    legal_moves: list[Move],
-    board: Board,
-) -> tuple[Move, int] | None:
-    captures: list[tuple[Move, int]] = [
-        (move, get_piece_value(piece=board.piece_at(move.to_square)))
-        for move in legal_moves
-        if board.is_capture(move)
-    ]
-    try:
-        return max(captures, key=lambda x: x[1])
-    except ValueError:
-        return None
 
 
 def get_piece_type(name: str | None) -> int | None:

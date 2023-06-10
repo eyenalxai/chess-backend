@@ -7,6 +7,7 @@ from app.util.helper import get_game_outcome
 from app.util.move import (
     get_chroma_move,
     get_contrast_move,
+    get_fortify_move,
     get_kamikaze_move,
     get_pacifist_move,
     get_pawnstorm_move,
@@ -35,6 +36,7 @@ def execute_strategy(
         "pawnstorm": get_pawnstorm_move,
         "predator": get_predator_move,
         "kamikaze": get_kamikaze_move,
+        "fortify": get_fortify_move,
         "chroma": get_chroma_move,
         "contrast": get_contrast_move,
     }

@@ -8,6 +8,7 @@ StrategyName = Literal[
     "predator",
     "pawnstorm",
     "kamikaze",
+    "fortify",
     "chroma",
     "contrast",
     "stockfish-1",

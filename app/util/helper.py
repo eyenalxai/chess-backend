@@ -1,6 +1,7 @@
 from chess import (
     PIECE_NAMES,
     PIECE_SYMBOLS,
+    SQUARES,
     Board,
     Move,
     Outcome,
@@ -8,6 +9,7 @@ from chess import (
     Square,
     Termination,
     square_file,
+    square_name,
     square_rank,
 )
 
@@ -148,3 +150,46 @@ def get_piece_type(name: str | None) -> int | None:
     if name in PIECE_NAMES:
         return PIECE_NAMES.index(name)
     return None
+
+
+def get_potential_fortify_moves(
+    *, board: Board, pieces_under_attack: list[int]
+) -> list[tuple[MoveOutcome, int]]:
+    current_player_color = board.turn
+    potential_moves: list[tuple[MoveOutcome, int]] = []
+
+    for move in board.legal_moves:
+        hypothetical_board = board.copy()
+        hypothetical_board.push(move)
+
+        chess_move = ChessMove(
+            from_square=square_name(move.from_square),
+            to_square=square_name(move.to_square),
+            promotion=square_name(move.promotion) if move.promotion else None,
+        )
+
+        hypothetical_pieces_under_attack = [
+            square
+            for square in SQUARES
+            if hypothetical_board.is_attacked_by(not current_player_color, square)
+            and hypothetical_board.piece_at(square)
+            and hypothetical_board.piece_at(square).color == current_player_color
+        ]
+
+        captured_piece = board.piece_at(move.to_square)
+        captured_piece_value = captured_piece.piece_type if captured_piece else 0
+
+        if (
+            len(hypothetical_pieces_under_attack) < len(pieces_under_attack)
+            or captured_piece_value > 0
+        ):
+            potential_moves.append(
+                (
+                    MoveOutcome(
+                        chess_move=chess_move,
+                    ),
+                    captured_piece_value - len(hypothetical_pieces_under_attack),
+                )
+            )
+
+    return potential_moves

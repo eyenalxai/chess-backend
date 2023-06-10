@@ -1,10 +1,11 @@
 from random import choice
 
-from chess import BLACK, SQUARES, WHITE, Board
+from chess import BLACK, WHITE, Board
 from stockfish import Stockfish  # type: ignore
 
 from app.util.helper import (
     get_best_capture,
+    get_pieces_under_attack,
     get_potential_fortify_moves,
     get_time_for_stockfish_strategy,
     is_black_square,
@@ -132,13 +133,9 @@ def get_best_fortify_move(
 def get_fortify_move(board: Board) -> MoveOutcome:
     current_player_color = board.turn
 
-    pieces_under_attack = [
-        square
-        for square in SQUARES
-        if board.is_attacked_by(not current_player_color, square)
-        and board.piece_at(square)
-        and board.piece_at(square).color == current_player_color
-    ]
+    pieces_under_attack = get_pieces_under_attack(
+        board=board, player_color=current_player_color
+    )
 
     potential_moves: list[tuple[MoveOutcome, int]] = get_potential_fortify_moves(
         board=board,

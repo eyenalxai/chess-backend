@@ -5,14 +5,17 @@ from stockfish import Stockfish  # type: ignore
 
 from app.util.helper import (
     get_best_capture,
-    get_pieces_under_attack,
-    get_potential_fortify_moves,
     get_time_for_stockfish_strategy,
     is_black_square,
     is_kamikaze_move,
     parse_move,
 )
 from app.util.schema import MoveOutcome, StrategyName
+from app.util.strategy.fortify import (
+    get_best_fortify_move,
+    get_pieces_under_attack,
+    get_potential_fortify_moves,
+)
 
 
 def get_pacifist_move(board: Board) -> MoveOutcome:
@@ -123,13 +126,6 @@ def get_contrast_move(board: Board) -> MoveOutcome:
     return get_random_move(board=board)
 
 
-def get_best_fortify_move(
-    *,
-    potential_moves: list[tuple[MoveOutcome, int]],
-) -> MoveOutcome:
-    return max(potential_moves, key=lambda move: move[1])[0]
-
-
 def get_fortify_move(board: Board) -> MoveOutcome:
     current_player_color = board.turn
 
@@ -137,9 +133,8 @@ def get_fortify_move(board: Board) -> MoveOutcome:
         board=board, player_color=current_player_color
     )
 
-    potential_moves: list[tuple[MoveOutcome, int]] = get_potential_fortify_moves(
-        board=board,
-        pieces_under_attack=pieces_under_attack,
+    potential_moves: list[tuple[MoveOutcome, float]] = get_potential_fortify_moves(
+        board=board, pieces_under_attack=pieces_under_attack, depth=3
     )
 
     if potential_moves:

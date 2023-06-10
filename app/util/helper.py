@@ -1,6 +1,7 @@
 from chess import (
     PIECE_NAMES,
     PIECE_SYMBOLS,
+    SQUARES,
     Board,
     Move,
     Outcome,
@@ -152,3 +153,12 @@ def get_piece_type(name: str | None) -> int | None:
     if name in PIECE_NAMES:
         return PIECE_NAMES.index(name)
     return None
+
+
+def count_opponent_pieces(*, board: Board, player_color: bool) -> int:
+    opponent_color = not player_color
+    return sum(
+        1
+        for square in SQUARES
+        if (piece := board.piece_at(square)) and piece.color == opponent_color
+    )

@@ -3,7 +3,7 @@ from typing import Callable
 from chess import Board, Move, square_name
 from stockfish import Stockfish  # type: ignore
 
-from app.util.helper import get_game_outcome
+from app.util.helper import count_opponent_pieces, get_game_outcome
 from app.util.move import (
     get_chroma_move,
     get_contrast_move,
@@ -24,6 +24,13 @@ def execute_strategy(
     stockfish: Stockfish,
 ) -> MoveOutcome:
     board = Board(fen=strategy_request.fen_string)
+
+    if count_opponent_pieces(board=board, player_color=board.turn) == 1:
+        return get_stockfish_move(
+            stockfish=stockfish,
+            strategy_name="stockfish-10",
+            fen_string=strategy_request.fen_string,
+        )
 
     game_outcome = get_game_outcome(board=board)
 

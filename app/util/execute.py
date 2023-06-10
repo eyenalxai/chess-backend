@@ -38,13 +38,13 @@ def execute_strategy(
         return game_outcome
 
     strategy_functions: dict[
-        StrategyName, Callable[[Stockfish, Board], MoveOutcome]
+        StrategyName, tuple[Callable[[Stockfish, Board, float], MoveOutcome], float]
     ] = {
-        "random": get_random_move,
-        "sidestep": get_sidestep_move,
-        "snatcher": get_snatcher_move,
-        "chroma": get_chroma_move,
-        "contrast": get_contrast_move,
+        "random": (get_random_move, 0),
+        "sidestep": (get_sidestep_move, 0.1),
+        "snatcher": (get_snatcher_move, 0.1),
+        "chroma": (get_chroma_move, 0.1),
+        "contrast": (get_contrast_move, 0.1),
     }
 
     if strategy_request.strategy_name.startswith("stockfish"):
@@ -54,10 +54,12 @@ def execute_strategy(
             fen_string=strategy_request.fen_string,
         )
 
-    strategy_function = strategy_functions.get(strategy_request.strategy_name)
+    strategy_function, probability = strategy_functions.get(
+        strategy_request.strategy_name, (None, 0)
+    )
 
     if strategy_function:
-        return strategy_function(stockfish, board)
+        return strategy_function(stockfish, board, probability)
 
     raise Exception("Invalid strategy")
 

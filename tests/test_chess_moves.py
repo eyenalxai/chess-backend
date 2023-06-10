@@ -10,13 +10,14 @@ from app.util.schema import MoveOutcome
 
 
 def execute_move(
-    get_move: Callable[[Stockfish, Board], MoveOutcome],
+    get_move: Callable[[Stockfish, Board, float], MoveOutcome],
     starting_fen: str,
     ending_fen: str,
 ) -> bool:
     board = Board(fen=starting_fen)
     stockfish = get_stockfish()
-    move = get_move(stockfish, board)
+    stockfish_move_prob = 0
+    move = get_move(stockfish, board, stockfish_move_prob)
 
     if not move.chess_move:
         raise Exception("No best move found")

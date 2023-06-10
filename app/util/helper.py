@@ -1,3 +1,4 @@
+from random import randint
 from typing import NamedTuple
 
 from chess import (
@@ -202,3 +203,17 @@ def square_color(square: Square) -> int:
     file = square_file(square)
     rank = square_rank(square)
     return (rank + file) % 2
+
+
+def is_probability_proc(
+    *,
+    probability: float,
+) -> bool:
+    return randint(0, 100) < probability * 100
+
+
+def should_do_stockfish(
+    moves: list[Move],
+    stockfish_move_prob: float,
+) -> bool:
+    return not moves or is_probability_proc(probability=stockfish_move_prob)

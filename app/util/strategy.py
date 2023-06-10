@@ -50,10 +50,7 @@ def get_stockfish_move(
     return parse_move(move=best_move)
 
 
-def get_random_move(
-    *,
-    board: Board,
-) -> MoveOutcome:
+def get_random_move(board: Board) -> MoveOutcome:
     return parse_move(move=choice(list(board.generate_legal_moves())).uci())
 
 

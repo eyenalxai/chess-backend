@@ -76,7 +76,7 @@ def execute_strategy(
         return game_outcome
 
     strategy_functions: dict[StrategyName, Callable[[Board], MoveOutcome]] = {
-        "random": get_random_move,  # type: ignore
+        "random": get_random_move,
         "pacifist": get_pacifist_move,
         "pawnstorm": get_pawnstorm_move,
         "predator": get_predator_move,

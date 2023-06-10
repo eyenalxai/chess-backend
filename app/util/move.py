@@ -28,7 +28,7 @@ def get_predator_move(board: Board) -> MoveOutcome:
 
     best_capture = get_best_capture(legal_moves=legal_moves, board=board)
 
-    if best_capture is not None:
+    if best_capture:
         return parse_move(move=best_capture[0].uci())
 
     return get_random_move(board=board)

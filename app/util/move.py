@@ -11,6 +11,7 @@ from app.util.helper import (
     parse_move,
 )
 from app.util.schema import MoveOutcome, StrategyName
+from app.util.settings import api_settings
 from app.util.strategy.fortify import (
     get_best_fortify_move,
     get_pieces_under_attack,
@@ -134,7 +135,9 @@ def get_fortify_move(board: Board) -> MoveOutcome:
     )
 
     potential_moves: list[tuple[MoveOutcome, float]] = get_potential_fortify_moves(
-        board=board, pieces_under_attack=pieces_under_attack, depth=3
+        board=board,
+        pieces_under_attack=pieces_under_attack,
+        depth=api_settings.search_depth,
     )
 
     if potential_moves:

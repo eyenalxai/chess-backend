@@ -3,13 +3,63 @@ from chess import (
     PIECE_SYMBOLS,
     Board,
     Move,
+    Outcome,
     Piece,
     Square,
+    Termination,
     square_file,
     square_rank,
 )
 
-from app.util.schema import ChessMove, MoveOutcome, StrategyName
+from app.util.schema import (
+    ChessMove,
+    GameOutcome,
+    MoveOutcome,
+    Reason,
+    StrategyName,
+    Winner,
+)
+
+TERMINATION_REASON: dict[Termination, Reason] = {
+    Termination.CHECKMATE: "checkmate",
+    Termination.STALEMATE: "stalemate",
+    Termination.INSUFFICIENT_MATERIAL: "insufficient_material",
+    Termination.SEVENTYFIVE_MOVES: "seventyfive_moves",
+    Termination.FIVEFOLD_REPETITION: "fivefold_repetition",
+    Termination.FIFTY_MOVES: "fifty_moves",
+    Termination.THREEFOLD_REPETITION: "threefold_repetition",
+    Termination.VARIANT_WIN: "variant_win",
+    Termination.VARIANT_LOSS: "variant_loss",
+    Termination.VARIANT_DRAW: "variant_draw",
+}
+
+PIECE_VALUES = {"P": 1, "N": 3, "B": 3, "R": 5, "Q": 9, "K": 100}
+
+
+def get_game_outcome(*, board: Board) -> MoveOutcome | None:
+    if board.is_game_over():
+        outcome = board.outcome()
+        if outcome is not None:
+            winner = get_winner(outcome=outcome)
+            reason = TERMINATION_REASON.get(outcome.termination)
+            if reason is not None:
+                return MoveOutcome(
+                    game_outcome=GameOutcome(winner=winner, reason=reason, ended=True)
+                )
+            raise Exception("Invalid reason")
+        raise Exception("Invalid outcome")
+
+    return None
+
+
+def get_winner(*, outcome: Outcome) -> Winner:
+    if outcome.winner is None:
+        return "draw"
+
+    if outcome.winner:
+        return "white"
+
+    return "black"
 
 
 def parse_move(*, move: str) -> MoveOutcome:
@@ -33,7 +83,7 @@ def parse_move(*, move: str) -> MoveOutcome:
     raise Exception("Invalid best move")
 
 
-def get_time_for_strategy(strategy: StrategyName) -> int:
+def get_time_for_stockfish_strategy(strategy: StrategyName) -> int:
     if strategy == "stockfish-1":
         return 1
     if strategy == "stockfish-10":
@@ -71,9 +121,7 @@ def is_black_square(square: Square) -> bool:
 
 
 def get_piece_value(*, piece: Piece | None) -> int:
-    piece_values = {"P": 1, "N": 3, "B": 3, "R": 5, "Q": 9, "K": 100}
-
-    return piece_values.get(piece.symbol().upper(), 0) if piece else 0
+    return PIECE_VALUES.get(piece.symbol().upper(), 0) if piece else 0
 
 
 def get_best_capture(

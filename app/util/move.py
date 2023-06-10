@@ -1,135 +1,121 @@
-from typing import Callable
+from random import choice
 
-from chess import Board, Move, Outcome, Termination, square_name
+from chess import BLACK, WHITE, Board
 from stockfish import Stockfish  # type: ignore
 
-from app.util.schema import (
-    ChessMove,
-    GameOutcome,
-    MoveOutcome,
-    Reason,
-    StrategyName,
-    StrategyRequest,
-    Winner,
+from app.util.helper import (
+    get_best_capture,
+    get_time_for_stockfish_strategy,
+    is_black_square,
+    is_kamikaze_move,
+    parse_move,
 )
-from app.util.strategy import (
-    get_chroma_move,
-    get_contrast_move,
-    get_kamikaze_move,
-    get_pacifist_move,
-    get_pawnstorm_move,
-    get_predator_move,
-    get_random_move,
-    get_stockfish_move,
-)
-
-TERMINATION_REASON: dict[Termination, Reason] = {
-    Termination.CHECKMATE: "checkmate",
-    Termination.STALEMATE: "stalemate",
-    Termination.INSUFFICIENT_MATERIAL: "insufficient_material",
-    Termination.SEVENTYFIVE_MOVES: "seventyfive_moves",
-    Termination.FIVEFOLD_REPETITION: "fivefold_repetition",
-    Termination.FIFTY_MOVES: "fifty_moves",
-    Termination.THREEFOLD_REPETITION: "threefold_repetition",
-    Termination.VARIANT_WIN: "variant_win",
-    Termination.VARIANT_LOSS: "variant_loss",
-    Termination.VARIANT_DRAW: "variant_draw",
-}
+from app.util.schema import MoveOutcome, StrategyName
 
 
-def get_winner(*, outcome: Outcome) -> Winner:
-    if outcome.winner is None:
-        return "draw"
+def get_pacifist_move(board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+    pacifist_moves = [move for move in legal_moves if not board.is_capture(move=move)]
 
-    if outcome.winner:
-        return "white"
+    if not pacifist_moves:
+        return get_random_move(board=board)
 
-    return "black"
-
-
-def get_game_outcome(*, board: Board) -> MoveOutcome | None:
-    if board.is_game_over():
-        outcome = board.outcome()
-        if outcome is not None:
-            winner = get_winner(outcome=outcome)
-            reason = TERMINATION_REASON.get(outcome.termination)
-            if reason is not None:
-                return MoveOutcome(
-                    game_outcome=GameOutcome(winner=winner, reason=reason, ended=True)
-                )
-            raise Exception("Invalid reason")
-        raise Exception("Invalid outcome")
-
-    return None
+    return parse_move(move=choice(pacifist_moves).uci())
 
 
-def execute_strategy(
+def get_predator_move(board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+
+    best_capture = get_best_capture(legal_moves=legal_moves, board=board)
+
+    if best_capture is not None:
+        return parse_move(move=best_capture[0].uci())
+
+    return get_random_move(board=board)
+
+
+def get_stockfish_move(
     *,
-    strategy_request: StrategyRequest,
     stockfish: Stockfish,
+    strategy_name: StrategyName,
+    fen_string: str,
 ) -> MoveOutcome:
-    board = Board(fen=strategy_request.fen_string)
+    stockfish.set_fen_position(fen_position=fen_string)
+    time = get_time_for_stockfish_strategy(strategy=strategy_name)
+    best_move = stockfish.get_best_move_time(time=time)
 
-    game_outcome = get_game_outcome(board=board)
+    if not best_move:
+        raise Exception("No best move found")
 
-    if game_outcome is not None:
-        return game_outcome
-
-    strategy_functions: dict[StrategyName, Callable[[Board], MoveOutcome]] = {
-        "random": get_random_move,
-        "pacifist": get_pacifist_move,
-        "pawnstorm": get_pawnstorm_move,
-        "predator": get_predator_move,
-        "kamikaze": get_kamikaze_move,
-        "chroma": get_chroma_move,
-        "contrast": get_contrast_move,
-    }
-
-    if strategy_request.strategy_name.startswith("stockfish"):
-        return get_stockfish_move(
-            stockfish=stockfish,
-            strategy_name=strategy_request.strategy_name,
-            fen_string=strategy_request.fen_string,
-        )
-
-    strategy_function = strategy_functions.get(strategy_request.strategy_name)
-
-    if strategy_function:
-        return strategy_function(board)
-
-    raise Exception("Invalid strategy")
+    return parse_move(move=best_move)
 
 
-def execute_move(
-    *,
-    chess_move: ChessMove,
-    strategy_request: StrategyRequest,
-) -> MoveOutcome:
-    board = Board(fen=strategy_request.fen_string)
+def get_random_move(board: Board) -> MoveOutcome:
+    return parse_move(move=choice(list(board.generate_legal_moves())).uci())
 
-    uci_string = chess_move.from_square + chess_move.to_square
-    if chess_move.promotion:
-        uci_string += chess_move.promotion
 
-    move = Move.from_uci(uci_string)
+def get_pawnstorm_move(board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+    pieces = board.piece_map()
 
-    legal_move_ucis = [legal_move.uci() for legal_move in board.legal_moves]
+    pawn_squares = [
+        square for square, piece in pieces.items() if piece.symbol().lower() == "p"
+    ]
 
-    if move.uci() not in legal_move_ucis and move.uci()[0:4] not in legal_move_ucis:
-        raise Exception("Invalid move")
+    pawn_moves = [move for move in legal_moves if move.from_square in pawn_squares]
 
-    board.push(move)
+    if not pawn_moves:
+        return get_random_move(board=board)
 
-    game_outcome = get_game_outcome(board=board)
+    capture_moves = [move for move in pawn_moves if board.is_capture(move=move)]
+    non_capture_moves = [move for move in pawn_moves if not board.is_capture(move=move)]
 
-    if game_outcome is not None:
-        return game_outcome
+    if capture_moves:
+        return parse_move(move=choice(capture_moves).uci())
 
-    return MoveOutcome(
-        chess_move=ChessMove(
-            from_square=square_name(square=move.from_square),
-            to_square=square_name(square=move.to_square),
-            promotion=chess_move.promotion,
-        ),
-        game_outcome=None,
-    )
+    return parse_move(move=choice(non_capture_moves).uci())
+
+
+def get_kamikaze_move(board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+
+    kamikaze_moves = [
+        move for move in legal_moves if is_kamikaze_move(board=board, move=move)
+    ]
+
+    if kamikaze_moves:
+        return parse_move(move=choice(kamikaze_moves).uci())
+
+    return get_predator_move(board=board)
+
+
+def get_chroma_move(board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+
+    same_color_moves = [
+        move
+        for move in legal_moves
+        if (board.turn == WHITE and not is_black_square(square=move.to_square))
+        or (board.turn == BLACK and is_black_square(square=move.to_square))
+    ]
+
+    if same_color_moves:
+        return parse_move(move=choice(same_color_moves).uci())
+
+    return get_random_move(board=board)
+
+
+def get_contrast_move(board: Board) -> MoveOutcome:
+    legal_moves = list(board.generate_legal_moves())
+
+    opposite_color_moves = [
+        move
+        for move in legal_moves
+        if (board.turn == WHITE and is_black_square(square=move.to_square))
+        or (board.turn == BLACK and not is_black_square(square=move.to_square))
+    ]
+
+    if opposite_color_moves:
+        return parse_move(move=choice(opposite_color_moves).uci())
+
+    return get_random_move(board=board)

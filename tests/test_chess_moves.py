@@ -1,7 +1,7 @@
 from chess import Board, Move, parse_square
 
 from app.util.helper import get_piece_type
-from app.util.strategy import get_predator_move
+from app.util.move import get_predator_move
 
 
 def test_get_predator_move() -> None:

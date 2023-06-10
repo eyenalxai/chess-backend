@@ -63,11 +63,11 @@ def execute_move(
 ) -> MoveOutcome:
     board = Board(fen=strategy_request.fen_string)
 
-    uci_string = chess_move.from_square + chess_move.to_square
+    uci_string = "".join([chess_move.from_square, chess_move.to_square])
     if chess_move.promotion:
-        uci_string += chess_move.promotion
+        uci_string = "".join([uci_string, chess_move.promotion])
 
-    move = Move.from_uci(uci_string)
+    move = Move.from_uci(uci=uci_string)
 
     legal_move_ucis = [legal_move.uci() for legal_move in board.legal_moves]
 

@@ -36,7 +36,7 @@ def get_board_value(*, board: Board, player_color: bool) -> int:
     value = 0
 
     for square in SQUARES:
-        piece = board.piece_at(square)
+        piece = board.piece_at(square=square)
 
         if piece is not None:
             if piece.color == player_color:
@@ -172,6 +172,8 @@ def get_potential_fortify_moves(
         get_move_outcome(board=board, move=move, depth=depth)
         for move in board.legal_moves
         if is_valid_move(
-            board=board, move=move, pieces_under_attack=pieces_under_attack
+            board=board,
+            move=move,
+            pieces_under_attack=pieces_under_attack,
         )
     ]

@@ -44,7 +44,11 @@ def get_game_outcome(*, board: Board) -> MoveOutcome | None:
             reason = TERMINATION_REASON.get(outcome.termination)
             if reason is not None:
                 return MoveOutcome(
-                    game_outcome=GameOutcome(winner=winner, reason=reason, ended=True)
+                    game_outcome=GameOutcome(
+                        winner=winner,
+                        reason=reason,
+                        ended=True,
+                    )
                 )
             raise Exception("Invalid reason")
         raise Exception("Invalid outcome")
@@ -99,7 +103,7 @@ def get_time_for_stockfish_strategy(strategy: StrategyName) -> int:
 
 
 def is_kamikaze_move(*, board: Board, move: Move) -> bool:
-    if not board.is_capture(move):
+    if not board.is_capture(move=move):
         return False
 
     hypothetical_board = board.copy()

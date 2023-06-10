@@ -47,6 +47,28 @@ def get_board_value(*, board: Board, player_color: bool) -> int:
     return value
 
 
+def calculate_optimal_value(
+    *,
+    is_max: bool,
+    hypothetical_board: Board,
+    current_player_color: bool,
+    depth: int,
+) -> float:
+    optimal_value = -inf if is_max else inf
+    compare_fn = max if is_max else min
+
+    for move in hypothetical_board.legal_moves:
+        value = calculate_move_outcome_value(
+            board=hypothetical_board,
+            move=move,
+            current_player_color=current_player_color,
+            depth=depth - 1,
+        )
+        optimal_value = compare_fn(optimal_value, value)
+
+    return optimal_value
+
+
 def calculate_move_outcome_value(
     *,
     board: Board,
@@ -63,27 +85,19 @@ def calculate_move_outcome_value(
         )
 
     if hypothetical_board.turn == current_player_color:
-        max_value = -inf
-        for move in hypothetical_board.legal_moves:
-            value = calculate_move_outcome_value(
-                board=hypothetical_board,
-                move=move,
-                current_player_color=current_player_color,
-                depth=depth - 1,
-            )
-            max_value = max(max_value, value)
-        return max_value
-    else:
-        min_value = inf
-        for move in hypothetical_board.legal_moves:
-            value = calculate_move_outcome_value(
-                board=hypothetical_board,
-                move=move,
-                current_player_color=current_player_color,
-                depth=depth - 1,
-            )
-            min_value = min(min_value, value)
-        return min_value
+        return calculate_optimal_value(
+            is_max=True,
+            hypothetical_board=hypothetical_board,
+            current_player_color=current_player_color,
+            depth=depth,
+        )
+
+    return calculate_optimal_value(
+        is_max=False,
+        hypothetical_board=hypothetical_board,
+        current_player_color=current_player_color,
+        depth=depth,
+    )
 
 
 def is_move_safety_improved(
@@ -111,6 +125,7 @@ def get_best_fortify_move(
 
 def is_valid_move(*, board: Board, move: Move, pieces_under_attack: list[int]) -> bool:
     current_player_color = board.turn
+
     return (
         is_move_safety_improved(
             board=board,
@@ -129,6 +144,7 @@ def get_move_outcome(
     depth: int,
 ) -> tuple[MoveOutcome, float]:
     current_player_color = board.turn
+
     move_outcome = MoveOutcome(
         chess_move=ChessMove(
             from_square=square_name(square=move.from_square),
@@ -136,6 +152,7 @@ def get_move_outcome(
             promotion=square_name(square=move.promotion) if move.promotion else None,
         ),
     )
+
     outcome_value = calculate_move_outcome_value(
         board=board,
         move=move,

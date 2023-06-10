@@ -26,6 +26,8 @@ def execute_move(
         )
     )
 
+    print("Current FEN: ", board.fen())
+
     return board.fen() == ending_fen
 
 

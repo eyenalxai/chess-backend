@@ -25,7 +25,10 @@ def execute_strategy(
 ) -> MoveOutcome:
     board = Board(fen=strategy_request.fen_string)
 
-    if count_opponent_pieces(board=board, player_color=board.turn) == 1:
+    if (
+        not strategy_request.strategy_name.startswith("stockfish")
+        and count_opponent_pieces(board=board, player_color=board.turn) == 1
+    ):
         return get_stockfish_move(
             stockfish=stockfish,
             strategy_name="stockfish-10",

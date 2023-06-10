@@ -8,7 +8,10 @@ from chess import (
     Move,
     Outcome,
     Piece,
+    Square,
     Termination,
+    square_file,
+    square_rank,
 )
 
 from app.util.schema import (
@@ -193,3 +196,9 @@ def count_opponent_pieces(*, board: Board, player_color: bool) -> int:
         for square in SQUARES
         if (piece := board.piece_at(square)) and piece.color == opponent_color
     )
+
+
+def square_color(square: Square) -> int:
+    file = square_file(square)
+    rank = square_rank(square)
+    return (rank + file) % 2

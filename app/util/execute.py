@@ -5,6 +5,8 @@ from stockfish import Stockfish
 
 from app.util.helper import count_opponent_pieces, get_game_outcome
 from app.util.move import (
+    get_chroma_move,
+    get_contrast_move,
     get_random_move,
     get_sidestep_move,
     get_snatcher_move,
@@ -41,6 +43,8 @@ def execute_strategy(
         "random": get_random_move,
         "sidestep": get_sidestep_move,
         "snatcher": get_snatcher_move,
+        "chroma": get_chroma_move,
+        "contrast": get_contrast_move,
     }
 
     if strategy_request.strategy_name.startswith("stockfish"):

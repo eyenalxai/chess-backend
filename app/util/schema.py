@@ -6,6 +6,8 @@ StrategyName = Literal[
     "random",
     "sidestep",
     "snatcher",
+    "chroma",
+    "contrast",
     "stockfish-1",
     "stockfish-10",
     "stockfish-100",

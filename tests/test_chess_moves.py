@@ -5,7 +5,7 @@ from stockfish import Stockfish
 
 from app.util.fish import get_stockfish
 from app.util.helper import get_piece_type
-from app.util.move import get_sidestep_move, get_snatcher_move
+from app.util.move import get_chroma_move, get_sidestep_move, get_snatcher_move
 from app.util.schema import MoveOutcome
 
 
@@ -29,7 +29,11 @@ def execute_move(
         )
     )
 
-    return board.fen() == ending_fen
+    current_fen = board.fen()
+    if current_fen != ending_fen:
+        print(f"Board FEN: {current_fen}")
+
+    return current_fen == ending_fen
 
 
 def test_get_sidestep_move() -> None:
@@ -47,8 +51,19 @@ def test_get_snatcher_move() -> None:
     starting_fen = "k7/8/2q1p1n1/8/B5B1/8/2B5/K7 w - - 0 1"
     ending_fen = "k7/8/2B1p1n1/8/6B1/8/2B5/K7 b - - 0 1"
 
-    assert execute_move(
+    execute_move(
         get_move=get_snatcher_move,
+        starting_fen=starting_fen,
+        ending_fen=ending_fen,
+    )
+
+
+def test_get_chroma_move() -> None:
+    starting_fen = "1k6/3n1q2/8/4N3/p1p2p1p/1P4P1/8/1K6 w - - 0 1"
+    ending_fen = "1k6/3n1N2/8/8/p1p2p1p/1P4P1/8/1K6 b - - 0 1"
+
+    assert execute_move(
+        get_move=get_chroma_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )

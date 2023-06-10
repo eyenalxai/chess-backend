@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, randint
 
 from chess import Board
 from stockfish import Stockfish
@@ -8,6 +8,7 @@ from app.util.helper import (
     get_pieces_under_attack,
     get_time_for_stockfish_strategy,
     parse_move,
+    square_color,
 )
 from app.util.schema import MoveOutcome, StrategyName
 
@@ -46,10 +47,10 @@ def get_sidestep_move(
         move for move in board.legal_moves if move.from_square in pieces_under_attack
     ]
 
-    if not sidestepping_moves:
+    if not sidestepping_moves or randint(0, 9) == 0:
         return get_stockfish_move(
             stockfish=stockfish,
-            strategy_name="stockfish-1",
+            strategy_name="stockfish-10",
             fen_string=board.fen(),
         )
 
@@ -65,10 +66,10 @@ def get_sidestep_move(
 def get_snatcher_move(stockfish: Stockfish, board: Board) -> MoveOutcome:
     capturing_moves = [move for move in board.legal_moves if board.is_capture(move)]
 
-    if not capturing_moves:
+    if not capturing_moves or randint(0, 9) == 0:
         return get_stockfish_move(
             stockfish=stockfish,
-            strategy_name="stockfish-1",
+            strategy_name="stockfish-10",
             fen_string=board.fen(),
         )
 
@@ -76,6 +77,52 @@ def get_snatcher_move(stockfish: Stockfish, board: Board) -> MoveOutcome:
         move=get_move_with_highest_eval(
             board=board,
             moves=capturing_moves,
+            player_color=board.turn,
+        ).uci()
+    )
+
+
+def get_chroma_move(stockfish: Stockfish, board: Board) -> MoveOutcome:
+    chroma_moves = [
+        move
+        for move in board.legal_moves
+        if square_color(square=move.to_square) != int(board.turn)
+    ]
+
+    if not chroma_moves or randint(0, 9) == 0:
+        return get_stockfish_move(
+            stockfish=stockfish,
+            strategy_name="stockfish-10",
+            fen_string=board.fen(),
+        )
+
+    return parse_move(
+        move=get_move_with_highest_eval(
+            board=board,
+            moves=chroma_moves,
+            player_color=board.turn,
+        ).uci()
+    )
+
+
+def get_contrast_move(stockfish: Stockfish, board: Board) -> MoveOutcome:
+    contrast_moves = [
+        move
+        for move in board.legal_moves
+        if square_color(square=move.to_square) == int(board.turn)
+    ]
+
+    if not contrast_moves or randint(0, 9) == 0:
+        return get_stockfish_move(
+            stockfish=stockfish,
+            strategy_name="stockfish-10",
+            fen_string=board.fen(),
+        )
+
+    return parse_move(
+        move=get_move_with_highest_eval(
+            board=board,
+            moves=contrast_moves,
             player_color=board.turn,
         ).uci()
     )

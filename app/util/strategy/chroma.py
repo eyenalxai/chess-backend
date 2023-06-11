@@ -10,13 +10,10 @@ def is_move_from_opposite_color_to_same_color(*, board: Board, move: Move) -> bo
     )
 
 
-def filter_moves_from_opposite_color_to_same_color(
-    board: Board,
-    moves: list[Move],
-) -> list[Move]:
+def filter_moves_from_opposite_color_to_same_color(board: Board) -> list[Move]:
     return [
         move
-        for move in moves
+        for move in list(board.legal_moves)
         if is_move_from_opposite_color_to_same_color(board=board, move=move)
     ]
 
@@ -28,12 +25,20 @@ def is_move_from_same_color_to_same_color(*, board: Board, move: Move) -> bool:
     )
 
 
-def filter_moves_from_same_color_to_same_color(
-    board: Board,
-    moves: list[Move],
-) -> list[Move]:
+def filter_moves_from_same_color_to_same_color(board: Board) -> list[Move]:
     return [
         move
-        for move in moves
+        for move in list(board.legal_moves)
         if is_move_from_same_color_to_same_color(board=board, move=move)
     ]
+
+
+def filter_chroma_moves(board: Board) -> list[Move]:
+    moves_from_opposite_color_to_same_color = (
+        filter_moves_from_opposite_color_to_same_color(board=board)
+    )
+    moves_from_same_color_to_same_color = filter_moves_from_same_color_to_same_color(
+        board=board,
+    )
+
+    return moves_from_opposite_color_to_same_color + moves_from_same_color_to_same_color

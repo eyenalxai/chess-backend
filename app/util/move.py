@@ -4,23 +4,17 @@ from random import choice
 from chess import Board, Move
 from stockfish import Stockfish
 
-from app.util.board_evaluation import get_pieces_under_attack
 from app.util.helper import (
     get_move_with_highest_eval,
     get_time_for_stockfish_strategy,
-    is_probability_proc,
     parse_move,
     should_do_stockfish_move,
 )
 from app.util.schema import MoveOutcome, StrategyName
-from app.util.strategy.chroma import (
-    filter_moves_from_opposite_color_to_same_color,
-    filter_moves_from_same_color_to_same_color,
-)
-from app.util.strategy.contrast import (
-    filter_moves_from_opposite_color_to_opposite_color,
-    filter_moves_from_same_color_to_opposite_color,
-)
+from app.util.strategy.chroma import filter_chroma_moves
+from app.util.strategy.contrast import filter_contrast_moves
+from app.util.strategy.sidestep import filter_sidestep_moves
+from app.util.strategy.snatcher import filter_snatcher_moves
 
 
 def get_stockfish_move(
@@ -47,23 +41,17 @@ def get_random_move(
     return parse_move(move=choice(list(board.generate_legal_moves())).uci())
 
 
-def get_sidestep_move(
+def get_move(
+    *,
     stockfish: Stockfish,
     board: Board,
-    stockfish_move_prob: float = 0.1,
+    stockfish_move_prob: float,
+    filter_moves: Callable[[Board], list[Move]],
 ) -> MoveOutcome:
-    player_color = board.turn
-    pieces_under_attack = get_pieces_under_attack(
-        board=board,
-        player_color=player_color,
-    )
-
-    sidestepping_moves = [
-        move for move in board.legal_moves if move.from_square in pieces_under_attack
-    ]
+    filtered_moves = filter_moves(board)
 
     if should_do_stockfish_move(
-        moves=sidestepping_moves,
+        moves=filtered_moves,
         stockfish_move_prob=stockfish_move_prob,
     ):
         return get_stockfish_move(
@@ -75,9 +63,22 @@ def get_sidestep_move(
     return parse_move(
         move=get_move_with_highest_eval(
             board=board,
-            moves=sidestepping_moves,
-            player_color=player_color,
+            moves=filtered_moves,
+            player_color=board.turn,
         ).uci()
+    )
+
+
+def get_sidestep_move(
+    stockfish: Stockfish,
+    board: Board,
+    stockfish_move_prob: float = 0.1,
+) -> MoveOutcome:
+    return get_move(
+        stockfish=stockfish,
+        board=board,
+        stockfish_move_prob=stockfish_move_prob,
+        filter_moves=filter_sidestep_moves,
     )
 
 
@@ -86,24 +87,11 @@ def get_snatcher_move(
     board: Board,
     stockfish_move_prob: float,
 ) -> MoveOutcome:
-    capturing_moves = [move for move in board.legal_moves if board.is_capture(move)]
-
-    if should_do_stockfish_move(
-        moves=capturing_moves,
+    return get_move(
+        stockfish=stockfish,
+        board=board,
         stockfish_move_prob=stockfish_move_prob,
-    ):
-        return get_stockfish_move(
-            stockfish=stockfish,
-            strategy_name="stockfish-10",
-            fen_string=board.fen(),
-        )
-
-    return parse_move(
-        move=get_move_with_highest_eval(
-            board=board,
-            moves=capturing_moves,
-            player_color=board.turn,
-        ).uci()
+        filter_moves=filter_snatcher_moves,
     )
 
 
@@ -112,14 +100,11 @@ def get_chroma_move(
     board: Board,
     stockfish_move_prob: float,
 ) -> MoveOutcome:
-    return get_best_move_after_filtering(
+    return get_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_functions=[
-            filter_moves_from_opposite_color_to_same_color,
-            filter_moves_from_same_color_to_same_color,
-        ],
+        filter_moves=filter_chroma_moves,
     )
 
 
@@ -128,44 +113,9 @@ def get_contrast_move(
     board: Board,
     stockfish_move_prob: float,
 ) -> MoveOutcome:
-    return get_best_move_after_filtering(
+    return get_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_functions=[
-            filter_moves_from_same_color_to_opposite_color,
-            filter_moves_from_opposite_color_to_opposite_color,
-        ],
-    )
-
-
-def get_best_move_after_filtering(
-    *,
-    stockfish: Stockfish,
-    board: Board,
-    stockfish_move_prob: float,
-    filter_functions: list[Callable[[Board, list[Move]], list[Move]]],
-) -> MoveOutcome:
-    if is_probability_proc(probability=stockfish_move_prob):
-        return get_stockfish_move(
-            stockfish=stockfish,
-            strategy_name="stockfish-10",
-            fen_string=board.fen(),
-        )
-
-    for filter_function in filter_functions:
-        filtered_moves = filter_function(board, list(board.legal_moves))
-        if filtered_moves:
-            return parse_move(
-                move=get_move_with_highest_eval(
-                    board=board,
-                    moves=filtered_moves,
-                    player_color=board.turn,
-                ).uci()
-            )
-
-    return get_stockfish_move(
-        stockfish=stockfish,
-        strategy_name="stockfish-10",
-        fen_string=board.fen(),
+        filter_moves=filter_contrast_moves,
     )

@@ -80,16 +80,16 @@ def count_opponent_pieces(*, board: Board, player_color: bool) -> int:
     )
 
 
-def is_white_square(square: Square) -> bool:
+def is_white_square(*, square: Square) -> bool:
     return (square_file(square) + square_rank(square)) % 2 == 0
 
 
-def is_black_square(square: Square) -> bool:
-    return not is_white_square(square)
+def is_black_square(*, square: Square) -> bool:
+    return not is_white_square(square=square)
 
 
-def get_square_color(square: Square) -> Color:
-    return WHITE if is_white_square(square) else BLACK
+def get_square_color(*, square: Square) -> Color:
+    return WHITE if is_white_square(square=square) else BLACK
 
 
 def is_piece_on_square_of_player_color(

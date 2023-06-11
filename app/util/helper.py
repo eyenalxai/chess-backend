@@ -50,7 +50,7 @@ def parse_move(*, move: str) -> MoveOutcome:
     raise Exception("Invalid best move")
 
 
-def get_time_for_stockfish_strategy(strategy: StrategyName) -> int:
+def get_time_for_stockfish_strategy(*, strategy: StrategyName) -> int:
     if strategy == "stockfish-1":
         return 1
     if strategy == "stockfish-10":
@@ -65,7 +65,7 @@ def get_time_for_stockfish_strategy(strategy: StrategyName) -> int:
     raise Exception("Invalid strategy")
 
 
-def get_piece_type(name: str | None) -> int | None:
+def get_piece_type(*, name: str | None) -> int | None:
     if name is None:
         return None
     if name in PIECE_SYMBOLS:
@@ -86,6 +86,7 @@ def is_probability_proc(
 
 
 def should_do_stockfish_move(
+    *,
     moves: list[Move],
     stockfish_move_prob: float,
 ) -> bool:

@@ -6,7 +6,11 @@ from app.util.board_evaluation import simulate_move_and_evaluate
 from app.util.schema import ChessMove, MoveEvaluation, MoveOutcome, StrategyName
 
 
-def get_move_with_highest_eval(
+def get_move_with_max_value(*, move_values: list[MoveEvaluation]) -> Move:
+    return max(move_values, key=lambda move_value: move_value.value).move
+
+
+def evaluate_and_get_best_move(
     *,
     board: Board,
     moves: list[Move],
@@ -26,24 +30,26 @@ def get_move_with_highest_eval(
     if not move_values:
         raise Exception("No moves found")
 
-    return max(move_values, key=lambda move_value: move_value.value).move
+    return get_move_with_max_value(move_values=move_values)
 
 
-def parse_move(*, move: str) -> MoveOutcome:
-    if len(move) == 4:
+def parse_move(*, move_uci: str) -> MoveOutcome:
+    if len(move_uci) == 4:
         return MoveOutcome(
             chess_move=ChessMove(
-                from_square=move[:2],
-                to_square=move[2:],
+                from_square=move_uci[:2],
+                to_square=move_uci[2:],
+                uci=move_uci,
             )
         )
 
-    if len(move) == 5:
+    if len(move_uci) == 5:
         return MoveOutcome(
             chess_move=ChessMove(
-                from_square=move[:2],
-                to_square=move[2:4],
-                promotion=move[4],
+                from_square=move_uci[:2],
+                to_square=move_uci[2:4],
+                promotion=move_uci[4],
+                uci=move_uci,
             )
         )
 

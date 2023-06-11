@@ -1,12 +1,16 @@
 from collections.abc import Callable
 
-from chess import BLACK, SQUARES, WHITE, Board, Move, parse_square
+from chess import Board, Move, parse_square
 from stockfish import Stockfish
 
-from app.util.board_evaluation import get_square_color, is_black_square, is_white_square
 from app.util.fish.get_fish import get_stockfish
 from app.util.helper import get_piece_type
-from app.util.move import get_chroma_move, get_dodger_move, get_punisher_move
+from app.util.move import (
+    get_chroma_move,
+    get_contrast_move,
+    get_dodger_move,
+    get_punisher_move,
+)
 from app.util.schema import MoveOutcome
 
 
@@ -72,21 +76,12 @@ def test_get_chroma_move() -> None:
     )
 
 
-def test_square_color() -> None:
-    black_colors = [
-        get_square_color(square=square)
-        for square in SQUARES
-        if is_black_square(square=square)
-    ]
+def test_get_contrast_move() -> None:
+    starting_fen = "2kn4/8/2P1N3/5n2/8/1p2R1Q1/R1Q5/5K2 b - - 0 1"
+    ending_fen = "2kn4/8/2P1N3/5n2/8/4R1Q1/R1p5/5K2 w - - 0 2"
 
-    white_colors = [
-        get_square_color(square=square)
-        for square in SQUARES
-        if is_white_square(square=square)
-    ]
-
-    assert len(black_colors) == 32
-    assert black_colors == [BLACK] * 32
-
-    assert len(white_colors) == 32
-    assert white_colors == [WHITE] * 32
+    assert execute_move(
+        get_move=get_contrast_move,
+        starting_fen=starting_fen,
+        ending_fen=ending_fen,
+    )

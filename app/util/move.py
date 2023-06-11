@@ -1,13 +1,11 @@
 from collections.abc import Callable
 from random import choice
 
-from app.util.strategy.dodger import filter_dodger_moves
-from app.util.strategy.punisher import filter_punisher_moves
 from chess import Board, Move
 from stockfish import Stockfish
 
 from app.util.helper import (
-    get_move_with_highest_eval,
+    evaluate_and_get_best_move,
     get_time_for_stockfish_strategy,
     parse_move,
     should_do_stockfish_move,
@@ -15,6 +13,8 @@ from app.util.helper import (
 from app.util.schema import MoveOutcome, StrategyName
 from app.util.strategy.chroma import filter_chroma_moves
 from app.util.strategy.contrast import filter_contrast_moves
+from app.util.strategy.dodger import filter_dodger_moves
+from app.util.strategy.punisher import filter_punisher_moves
 
 
 def get_stockfish_move(
@@ -30,7 +30,7 @@ def get_stockfish_move(
     if not best_move:
         raise Exception("No best move found")
 
-    return parse_move(move=best_move)
+    return parse_move(move_uci=best_move)
 
 
 def get_random_move(
@@ -38,7 +38,7 @@ def get_random_move(
     board: Board,
     _stockfish_move_prob: float,
 ) -> MoveOutcome:
-    return parse_move(move=choice(list(board.generate_legal_moves())).uci())
+    return parse_move(move_uci=choice(list(board.generate_legal_moves())).uci())
 
 
 def get_move(
@@ -61,7 +61,7 @@ def get_move(
         )
 
     return parse_move(
-        move=get_move_with_highest_eval(
+        move_uci=evaluate_and_get_best_move(
             board=board,
             moves=filtered_moves,
             player_color=board.turn,

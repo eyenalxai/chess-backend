@@ -8,9 +8,9 @@ from app.util.game_outcome import get_game_outcome
 from app.util.move import (
     get_chroma_move,
     get_contrast_move,
-    get_random_move,
     get_dodger_move,
     get_punisher_move,
+    get_random_move,
     get_stockfish_move,
 )
 from app.util.schema import ChessMove, MoveOutcome, StrategyName, StrategyRequest
@@ -95,6 +95,7 @@ def execute_move(
             from_square=square_name(square=move.from_square),
             to_square=square_name(square=move.to_square),
             promotion=chess_move.promotion,
+            uci=move.uci(),
         ),
         game_outcome=None,
     )

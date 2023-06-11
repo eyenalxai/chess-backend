@@ -24,7 +24,7 @@ def get_piece_value(*, piece: Piece) -> int:
     raise Exception("Invalid piece")
 
 
-def get_piece_value_for_player(*, piece: Piece, player_color: bool) -> int:
+def get_piece_value_for_player(*, piece: Piece, player_color: Color) -> int:
     piece_symbol = piece.symbol().lower()
 
     if piece_symbol in PIECE_SYMBOLS:
@@ -36,7 +36,7 @@ def get_piece_value_for_player(*, piece: Piece, player_color: bool) -> int:
     raise Exception("Invalid piece")
 
 
-def evaluate_board(*, board: Board, player_color: bool) -> int:
+def evaluate_board(*, board: Board, player_color: Color) -> int:
     value = 0
 
     for square in range(64):
@@ -81,7 +81,7 @@ def count_opponent_pieces(*, board: Board, player_color: bool) -> int:
 
 
 def is_white_square(*, square: Square) -> bool:
-    return (square_file(square) + square_rank(square)) % 2 == 0
+    return (square_file(square) + square_rank(square)) % 2 != 0
 
 
 def is_black_square(*, square: Square) -> bool:

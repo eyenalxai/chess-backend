@@ -15,10 +15,10 @@ from app.util.helper import (
 )
 from app.util.schema import MoveOutcome, StrategyName
 from app.util.strategy.checkmate_express import get_worst_moves
-from app.util.strategy.chroma import filter_chroma_moves
-from app.util.strategy.contrast import filter_contrast_moves
-from app.util.strategy.dodger import filter_dodger_moves
-from app.util.strategy.punisher import filter_punisher_moves
+from app.util.strategy.dichrome import filter_dichrome_moves
+from app.util.strategy.elusive import filter_elusive_moves
+from app.util.strategy.monochrome import filter_monochrome_moves
+from app.util.strategy.predator import filter_predator_moves
 
 
 def get_stockfish_move(
@@ -72,7 +72,7 @@ def get_move(
     )
 
 
-def get_dodger_move(
+def get_elusive_move(
     stockfish: Stockfish,
     board: Board,
     stockfish_move_prob: float = 0.1,
@@ -81,11 +81,11 @@ def get_dodger_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_moves=filter_dodger_moves,
+        filter_moves=filter_elusive_moves,
     )
 
 
-def get_punisher_move(
+def get_predator_move(
     stockfish: Stockfish,
     board: Board,
     stockfish_move_prob: float,
@@ -94,11 +94,11 @@ def get_punisher_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_moves=filter_punisher_moves,
+        filter_moves=filter_predator_moves,
     )
 
 
-def get_chroma_move(
+def get_monochrome_move(
     stockfish: Stockfish,
     board: Board,
     stockfish_move_prob: float,
@@ -107,11 +107,11 @@ def get_chroma_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_moves=filter_chroma_moves,
+        filter_moves=filter_monochrome_moves,
     )
 
 
-def get_contrast_move(
+def get_dichrome_move(
     stockfish: Stockfish,
     board: Board,
     stockfish_move_prob: float,
@@ -120,7 +120,7 @@ def get_contrast_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_moves=filter_contrast_moves,
+        filter_moves=filter_dichrome_moves,
     )
 
 

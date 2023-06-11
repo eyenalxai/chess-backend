@@ -7,10 +7,10 @@ from app.util.board_evaluation import count_opponent_pieces
 from app.util.game_outcome import get_game_outcome
 from app.util.move import (
     get_checkmate_express_move,
-    get_chroma_move,
-    get_contrast_move,
-    get_dodger_move,
-    get_punisher_move,
+    get_dichrome_move,
+    get_elusive_move,
+    get_monochrome_move,
+    get_predator_move,
     get_random_move,
     get_stockfish_move,
 )
@@ -19,11 +19,11 @@ from app.util.schema import ChessMove, MoveOutcome, StrategyName, StrategyReques
 STRATEGY_FUNCTIONS: dict[
     StrategyName, tuple[Callable[[Stockfish, Board, float], MoveOutcome], float]
 ] = {
-    "random": (get_random_move, 0),
-    "dodger": (get_dodger_move, 1 / 10),
-    "punisher": (get_punisher_move, 1 / 10),
-    "chroma": (get_chroma_move, 1 / 5),
-    "contrast": (get_contrast_move, 1 / 5),
+    "random-move": (get_random_move, 0),
+    "elusive": (get_elusive_move, 1 / 10),
+    "predator": (get_predator_move, 1 / 10),
+    "monochrome": (get_monochrome_move, 1 / 5),
+    "dichrome": (get_dichrome_move, 1 / 5),
     "checkmate-express": (get_checkmate_express_move, 0),
 }
 

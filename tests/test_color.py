@@ -1,13 +1,13 @@
 from chess import BLACK, SQUARES, WHITE, Board, Move
 
 from app.util.board_evaluation import get_square_color, is_black_square, is_white_square
-from app.util.strategy.chroma import (
-    is_move_from_opposite_color_to_same_color,
-    is_move_from_same_color_to_same_color,
-)
-from app.util.strategy.contrast import (
+from app.util.strategy.dichrome import (
     is_move_from_opposite_color_to_opposite_color,
     is_move_from_same_color_to_opposite_color,
+)
+from app.util.strategy.monochrome import (
+    is_move_from_opposite_color_to_same_color,
+    is_move_from_same_color_to_same_color,
 )
 
 

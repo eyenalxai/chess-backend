@@ -5,11 +5,11 @@ from chess import Move
 from app.config.pydantic import Immutable
 
 StrategyName = Literal[
-    "random",
-    "dodger",
-    "punisher",
-    "chroma",
-    "contrast",
+    "random-move",
+    "elusive",
+    "predator",
+    "monochrome",
+    "dichrome",
     "checkmate-express",
     "stockfish-1",
     "stockfish-10",

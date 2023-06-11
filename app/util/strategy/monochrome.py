@@ -33,7 +33,7 @@ def filter_moves_from_same_color_to_same_color(board: Board) -> list[Move]:
     ]
 
 
-def filter_chroma_moves(board: Board) -> list[Move]:
+def filter_monochrome_moves(board: Board) -> list[Move]:
     moves_from_opposite_color_to_same_color = (
         filter_moves_from_opposite_color_to_same_color(board=board)
     )

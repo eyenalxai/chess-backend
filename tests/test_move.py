@@ -7,10 +7,10 @@ from app.util.fish.get_fish import get_stockfish
 from app.util.helper import get_piece_type
 from app.util.move import (
     get_checkmate_express_move,
-    get_chroma_move,
-    get_contrast_move,
-    get_dodger_move,
-    get_punisher_move,
+    get_dichrome_move,
+    get_elusive_move,
+    get_monochrome_move,
+    get_predator_move,
 )
 from app.util.schema import MoveOutcome
 
@@ -44,45 +44,45 @@ def execute_move(
     return current_fen == ending_fen
 
 
-def test_get_dodger_move() -> None:
+def test_get_elusive_move() -> None:
     starting_fen = "k7/8/2q1p1n1/8/B5B1/8/2B5/K7 b - - 0 1"
     ending_fen = "k7/8/4p1n1/8/q5B1/8/2B5/K7 w - - 0 2"
 
     assert execute_move(
-        get_move=get_dodger_move,
+        get_move=get_elusive_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
 
 
-def test_get_punisher_move() -> None:
+def test_get_predator_move() -> None:
     starting_fen = "k7/8/2q1p1n1/8/B5B1/8/2B5/K7 w - - 0 1"
     ending_fen = "k7/8/2B1p1n1/8/6B1/8/2B5/K7 b - - 0 1"
 
     execute_move(
-        get_move=get_punisher_move,
+        get_move=get_predator_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
 
 
-def test_get_chroma_move() -> None:
+def test_get_monochrome_move() -> None:
     starting_fen = "1k6/3n1q2/8/4N3/p1p2p1p/1P4P1/8/1K6 w - - 0 1"
     ending_fen = "1k6/3n1N2/8/8/p1p2p1p/1P4P1/8/1K6 b - - 0 1"
 
     assert execute_move(
-        get_move=get_chroma_move,
+        get_move=get_monochrome_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
 
 
-def test_get_contrast_move() -> None:
+def test_get_dichrome_move() -> None:
     starting_fen = "2kn4/8/2P1N3/5n2/8/1p2R1Q1/R1Q5/5K2 b - - 0 1"
     ending_fen = "2kn4/8/2P1N3/5n2/8/4R1Q1/R1p5/5K2 w - - 0 2"
 
     assert execute_move(
-        get_move=get_contrast_move,
+        get_move=get_dichrome_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )

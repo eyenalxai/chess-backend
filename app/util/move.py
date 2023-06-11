@@ -1,13 +1,14 @@
+from collections.abc import Callable
 from random import choice
 
-from chess import Board
+from chess import Board, Move
 from stockfish import Stockfish
 
 from app.util.board_evaluation import get_pieces_under_attack
 from app.util.helper import (
-    get_best_move_after_filtering,
     get_move_with_highest_eval,
     get_time_for_stockfish_strategy,
+    is_probability_proc,
     parse_move,
     should_do_stockfish_move,
 )
@@ -135,4 +136,36 @@ def get_contrast_move(
             filter_moves_from_same_color_to_opposite_color,
             filter_moves_from_opposite_color_to_opposite_color,
         ],
+    )
+
+
+def get_best_move_after_filtering(
+    *,
+    stockfish: Stockfish,
+    board: Board,
+    stockfish_move_prob: float,
+    filter_functions: list[Callable[[Board, list[Move]], list[Move]]],
+) -> MoveOutcome:
+    if is_probability_proc(probability=stockfish_move_prob):
+        return get_stockfish_move(
+            stockfish=stockfish,
+            strategy_name="stockfish-10",
+            fen_string=board.fen(),
+        )
+
+    for filter_function in filter_functions:
+        filtered_moves = filter_function(board, list(board.legal_moves))
+        if filtered_moves:
+            return parse_move(
+                move=get_move_with_highest_eval(
+                    board=board,
+                    moves=filtered_moves,
+                    player_color=board.turn,
+                ).uci()
+            )
+
+    return get_stockfish_move(
+        stockfish=stockfish,
+        strategy_name="stockfish-10",
+        fen_string=board.fen(),
     )

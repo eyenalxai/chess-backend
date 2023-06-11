@@ -11,7 +11,6 @@ def is_move_from_opposite_color_to_same_color(*, board: Board, move: Move) -> bo
 
 
 def filter_moves_from_opposite_color_to_same_color(
-    *,
     board: Board,
     moves: list[Move],
 ) -> list[Move]:
@@ -30,7 +29,6 @@ def is_move_from_same_color_to_same_color(*, board: Board, move: Move) -> bool:
 
 
 def filter_moves_from_same_color_to_same_color(
-    *,
     board: Board,
     moves: list[Move],
 ) -> list[Move]:

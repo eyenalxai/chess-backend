@@ -5,9 +5,9 @@ from stockfish import Stockfish
 
 from app.util.board_evaluation import get_pieces_under_attack
 from app.util.helper import (
+    get_best_move_after_filtering,
     get_move_with_highest_eval,
     get_time_for_stockfish_strategy,
-    is_probability_proc,
     parse_move,
     should_do_stockfish_move,
 )
@@ -111,47 +111,14 @@ def get_chroma_move(
     board: Board,
     stockfish_move_prob: float,
 ) -> MoveOutcome:
-    if is_probability_proc(probability=stockfish_move_prob):
-        return get_stockfish_move(
-            stockfish=stockfish,
-            strategy_name="stockfish-10",
-            fen_string=board.fen(),
-        )
-
-    moves_from_opposite_color_to_same_color = (
-        filter_moves_from_opposite_color_to_same_color(
-            board=board,
-            moves=list(board.legal_moves),
-        )
-    )
-
-    if moves_from_opposite_color_to_same_color:
-        return parse_move(
-            move=get_move_with_highest_eval(
-                board=board,
-                moves=moves_from_opposite_color_to_same_color,
-                player_color=board.turn,
-            ).uci()
-        )
-
-    moves_from_same_color_to_same_color = filter_moves_from_same_color_to_same_color(
-        board=board,
-        moves=list(board.legal_moves),
-    )
-
-    if moves_from_same_color_to_same_color:
-        return parse_move(
-            move=get_move_with_highest_eval(
-                board=board,
-                moves=moves_from_same_color_to_same_color,
-                player_color=board.turn,
-            ).uci()
-        )
-
-    return get_stockfish_move(
+    return get_best_move_after_filtering(
         stockfish=stockfish,
-        strategy_name="stockfish-10",
-        fen_string=board.fen(),
+        board=board,
+        stockfish_move_prob=stockfish_move_prob,
+        filter_functions=[
+            filter_moves_from_opposite_color_to_same_color,
+            filter_moves_from_same_color_to_same_color,
+        ],
     )
 
 
@@ -160,47 +127,12 @@ def get_contrast_move(
     board: Board,
     stockfish_move_prob: float,
 ) -> MoveOutcome:
-    if is_probability_proc(probability=stockfish_move_prob):
-        return get_stockfish_move(
-            stockfish=stockfish,
-            strategy_name="stockfish-10",
-            fen_string=board.fen(),
-        )
-
-    moves_from_same_color_to_opposite_color = (
-        filter_moves_from_same_color_to_opposite_color(
-            board=board,
-            moves=list(board.legal_moves),
-        )
-    )
-
-    if moves_from_same_color_to_opposite_color:
-        return parse_move(
-            move=get_move_with_highest_eval(
-                board=board,
-                moves=moves_from_same_color_to_opposite_color,
-                player_color=board.turn,
-            ).uci()
-        )
-
-    moves_from_opposite_color_to_opposite_color = (
-        filter_moves_from_opposite_color_to_opposite_color(
-            board=board,
-            moves=list(board.legal_moves),
-        )
-    )
-
-    if moves_from_opposite_color_to_opposite_color:
-        return parse_move(
-            move=get_move_with_highest_eval(
-                board=board,
-                moves=moves_from_opposite_color_to_opposite_color,
-                player_color=board.turn,
-            ).uci()
-        )
-
-    return get_stockfish_move(
+    return get_best_move_after_filtering(
         stockfish=stockfish,
-        strategy_name="stockfish-10",
-        fen_string=board.fen(),
+        board=board,
+        stockfish_move_prob=stockfish_move_prob,
+        filter_functions=[
+            filter_moves_from_same_color_to_opposite_color,
+            filter_moves_from_opposite_color_to_opposite_color,
+        ],
     )

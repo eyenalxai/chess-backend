@@ -1,8 +1,11 @@
+from collections.abc import Callable
 from random import random
 
 from chess import PIECE_NAMES, PIECE_SYMBOLS, Board, Move
+from stockfish import Stockfish
 
 from app.util.board_evaluation import simulate_move_and_evaluate
+from app.util.move import get_stockfish_move
 from app.util.schema import ChessMove, MoveEvaluation, MoveOutcome, StrategyName
 
 
@@ -90,3 +93,35 @@ def should_do_stockfish_move(
     stockfish_move_prob: float,
 ) -> bool:
     return not moves or is_probability_proc(probability=stockfish_move_prob)
+
+
+def get_best_move_after_filtering(
+    *,
+    stockfish: Stockfish,
+    board: Board,
+    stockfish_move_prob: float,
+    filter_functions: list[Callable[[Board, list[Move]], list[Move]]],
+) -> MoveOutcome:
+    if is_probability_proc(probability=stockfish_move_prob):
+        return get_stockfish_move(
+            stockfish=stockfish,
+            strategy_name="stockfish-10",
+            fen_string=board.fen(),
+        )
+
+    for filter_function in filter_functions:
+        filtered_moves = filter_function(board, list(board.legal_moves))
+        if filtered_moves:
+            return parse_move(
+                move=get_move_with_highest_eval(
+                    board=board,
+                    moves=filtered_moves,
+                    player_color=board.turn,
+                ).uci()
+            )
+
+    return get_stockfish_move(
+        stockfish=stockfish,
+        strategy_name="stockfish-10",
+        fen_string=board.fen(),
+    )

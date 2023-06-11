@@ -1,4 +1,4 @@
-from random import randint
+from random import random
 from typing import NamedTuple
 
 from chess import (
@@ -209,7 +209,10 @@ def is_probability_proc(
     *,
     probability: float,
 ) -> bool:
-    return randint(0, 100) < probability * 100
+    if not 0.0 <= probability <= 1.0:
+        raise ValueError("Probability must be between 0 and 1")
+
+    return random() < probability
 
 
 def should_do_stockfish(

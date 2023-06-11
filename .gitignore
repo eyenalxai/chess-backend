@@ -1,4 +1,4 @@
-/app/util/stockfish
+/app/util/fish/stockfish
 /.idea
 /.env
 __pycache__

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from stockfish import Stockfish
 
 from app.util.execute import execute_move, execute_strategy
-from app.util.fish import get_stockfish
+from app.util.fish.get_fish import get_stockfish
 from app.util.schema import ChessMove, MoveOutcome, StrategyRequest
 
 chess_router = APIRouter(tags=["chess"])

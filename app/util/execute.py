@@ -14,6 +14,16 @@ from app.util.move import (
 )
 from app.util.schema import ChessMove, MoveOutcome, StrategyName, StrategyRequest
 
+STRATEGY_FUNCTIONS: dict[
+    StrategyName, tuple[Callable[[Stockfish, Board, float], MoveOutcome], float]
+] = {
+    "random": (get_random_move, 0),
+    "sidestep": (get_sidestep_move, 0.1),
+    "snatcher": (get_snatcher_move, 0.1),
+    "chroma": (get_chroma_move, 0.1),
+    "contrast": (get_contrast_move, 0.1),
+}
+
 
 def execute_strategy(
     *,
@@ -37,16 +47,6 @@ def execute_strategy(
     if game_outcome is not None:
         return game_outcome
 
-    strategy_functions: dict[
-        StrategyName, tuple[Callable[[Stockfish, Board, float], MoveOutcome], float]
-    ] = {
-        "random": (get_random_move, 0),
-        "sidestep": (get_sidestep_move, 0.1),
-        "snatcher": (get_snatcher_move, 0.1),
-        "chroma": (get_chroma_move, 0.1),
-        "contrast": (get_contrast_move, 0.1),
-    }
-
     if strategy_request.strategy_name.startswith("stockfish"):
         return get_stockfish_move(
             stockfish=stockfish,
@@ -54,7 +54,7 @@ def execute_strategy(
             fen_string=strategy_request.fen_string,
         )
 
-    strategy_function, probability = strategy_functions.get(
+    strategy_function, probability = STRATEGY_FUNCTIONS.get(
         strategy_request.strategy_name, (None, 0)
     )
 

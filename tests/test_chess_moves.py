@@ -3,7 +3,7 @@ from collections.abc import Callable
 from chess import Board, Move, parse_square
 from stockfish import Stockfish
 
-from app.util.fish import get_stockfish
+from app.util.fish.get_fish import get_stockfish
 from app.util.helper import get_piece_type
 from app.util.move import get_chroma_move, get_sidestep_move, get_snatcher_move
 from app.util.schema import MoveOutcome

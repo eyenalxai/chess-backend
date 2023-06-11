@@ -1,8 +1,9 @@
 from collections.abc import Callable
 
-from chess import Board, Move, parse_square
+from chess import BLACK, SQUARES, WHITE, Board, Move, parse_square
 from stockfish import Stockfish
 
+from app.util.board_evaluation import get_square_color, is_black_square, is_white_square
 from app.util.fish.get_fish import get_stockfish
 from app.util.helper import get_piece_type
 from app.util.move import get_chroma_move, get_sidestep_move, get_snatcher_move
@@ -69,3 +70,23 @@ def test_get_chroma_move() -> None:
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
+
+
+def test_square_color() -> None:
+    black_colors = [
+        get_square_color(square=square)
+        for square in SQUARES
+        if is_black_square(square=square)
+    ]
+
+    white_colors = [
+        get_square_color(square=square)
+        for square in SQUARES
+        if is_white_square(square=square)
+    ]
+
+    assert len(black_colors) == 32
+    assert black_colors == [BLACK] * 32
+
+    assert len(white_colors) == 32
+    assert white_colors == [WHITE] * 32

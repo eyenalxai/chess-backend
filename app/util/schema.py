@@ -1,4 +1,6 @@
-from typing import Literal
+from typing import Literal, NamedTuple
+
+from chess import Move
 
 from app.config.pydantic import Immutable
 
@@ -51,3 +53,8 @@ class ChessMove(Immutable):
 class MoveOutcome(Immutable):
     chess_move: ChessMove | None = None
     game_outcome: GameOutcome | None = None
+
+
+class MoveEvaluation(NamedTuple):
+    move: Move
+    value: int

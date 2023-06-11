@@ -3,7 +3,8 @@ from typing import Callable
 from chess import Board, Move, square_name
 from stockfish import Stockfish
 
-from app.util.helper import count_opponent_pieces, get_game_outcome
+from app.util.board_evaluation import count_opponent_pieces
+from app.util.game_outcome import get_game_outcome
 from app.util.move import (
     get_chroma_move,
     get_contrast_move,
@@ -18,10 +19,10 @@ STRATEGY_FUNCTIONS: dict[
     StrategyName, tuple[Callable[[Stockfish, Board, float], MoveOutcome], float]
 ] = {
     "random": (get_random_move, 0),
-    "sidestep": (get_sidestep_move, 0.1),
-    "snatcher": (get_snatcher_move, 0.1),
-    "chroma": (get_chroma_move, 0.1),
-    "contrast": (get_contrast_move, 0.1),
+    "sidestep": (get_sidestep_move, 1 / 10),
+    "snatcher": (get_snatcher_move, 1 / 10),
+    "chroma": (get_chroma_move, 1 / 5),
+    "contrast": (get_contrast_move, 1 / 5),
 }
 
 

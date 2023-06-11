@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from chess import (
     BLACK,
     PIECE_SYMBOLS,
@@ -11,6 +13,8 @@ from chess import (
     square_file,
     square_rank,
 )
+
+from app.util.schema import MoveEvaluation
 
 PIECE_VALUES = {None: 0, "p": 1, "n": 3, "b": 3, "r": 5, "q": 9, "k": 100}
 
@@ -48,10 +52,10 @@ def evaluate_board(*, board: Board, player_color: Color) -> int:
     return value
 
 
-def simulate_move_and_evaluate(*, board: Board, move: Move, player_color: bool) -> int:
+def simulate_move_and_evaluate(*, board: Board, move: Move) -> int:
     hypothetical_board = board.copy(stack=False)
     hypothetical_board.push(move=move)
-    return evaluate_board(board=hypothetical_board, player_color=player_color)
+    return evaluate_board(board=hypothetical_board, player_color=board.turn)
 
 
 def is_square_under_attack(*, board: Board, square: int, player_color: bool) -> bool:
@@ -96,3 +100,36 @@ def is_players_piece_on_square(
 ) -> bool:
     piece = board.piece_at(square=square)
     return piece is not None and piece.color == player_color
+
+
+def get_move_based_on_value(*, move_values: list[MoveEvaluation], fn: Callable) -> Move:
+    return fn(move_values, key=lambda move_value: move_value.value).move
+
+
+class NoMovesToEvaluateError(Exception):
+    """Raised when there are no moves to evaluate"""
+
+    pass
+
+
+def evaluate_and_get_optimal_move(
+    *,
+    board: Board,
+    moves: list[Move],
+    is_max: bool = True,
+) -> Move:
+    move_values = [
+        MoveEvaluation(
+            move=move,
+            value=simulate_move_and_evaluate(
+                board=board,
+                move=move,
+            ),
+        )
+        for move in moves
+    ]
+    if not move_values:
+        raise NoMovesToEvaluateError
+
+    fn = max if is_max else min
+    return get_move_based_on_value(move_values=move_values, fn=fn)

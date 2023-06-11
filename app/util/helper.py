@@ -1,36 +1,8 @@
 from random import random
 
-from chess import PIECE_NAMES, PIECE_SYMBOLS, Board, Move
+from chess import PIECE_NAMES, PIECE_SYMBOLS, Move
 
-from app.util.board_evaluation import simulate_move_and_evaluate
-from app.util.schema import ChessMove, MoveEvaluation, MoveOutcome, StrategyName
-
-
-def get_move_with_max_value(*, move_values: list[MoveEvaluation]) -> Move:
-    return max(move_values, key=lambda move_value: move_value.value).move
-
-
-def evaluate_and_get_best_move(
-    *,
-    board: Board,
-    moves: list[Move],
-    player_color: bool,
-) -> Move:
-    move_values = [
-        MoveEvaluation(
-            move=move,
-            value=simulate_move_and_evaluate(
-                board=board,
-                move=move,
-                player_color=player_color,
-            ),
-        )
-        for move in moves
-    ]
-    if not move_values:
-        raise Exception("No moves found")
-
-    return get_move_with_max_value(move_values=move_values)
+from app.util.schema import ChessMove, MoveOutcome, StrategyName
 
 
 def parse_move(*, move_uci: str) -> MoveOutcome:

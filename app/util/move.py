@@ -4,8 +4,11 @@ from random import choice
 from chess import Board, Move
 from stockfish import Stockfish
 
+from app.util.board_evaluation import (
+    evaluate_and_get_optimal_move,
+    get_move_based_on_value,
+)
 from app.util.helper import (
-    evaluate_and_get_best_move,
     get_time_for_stockfish_strategy,
     parse_move,
     should_do_stockfish_move,
@@ -14,6 +17,7 @@ from app.util.schema import MoveOutcome, StrategyName
 from app.util.strategy.chroma import filter_chroma_moves
 from app.util.strategy.contrast import filter_contrast_moves
 from app.util.strategy.dodger import filter_dodger_moves
+from app.util.strategy.kamikaze import get_worst_moves
 from app.util.strategy.punisher import filter_punisher_moves
 
 
@@ -61,10 +65,9 @@ def get_move(
         )
 
     return parse_move(
-        move_uci=evaluate_and_get_best_move(
+        move_uci=evaluate_and_get_optimal_move(
             board=board,
             moves=filtered_moves,
-            player_color=board.turn,
         ).uci()
     )
 
@@ -118,4 +121,24 @@ def get_contrast_move(
         board=board,
         stockfish_move_prob=stockfish_move_prob,
         filter_moves=filter_contrast_moves,
+    )
+
+
+def get_kamikaze_move(
+    _stockfish: Stockfish,
+    board: Board,
+    _stockfish_move_prob: float,
+) -> MoveOutcome:
+    worst_moves = get_worst_moves(board=board, player_moves=list(board.legal_moves))
+
+    if worst_moves:
+        # Max is because we calculate the worst moves
+        # based on the opponent's perspective
+        move = get_move_based_on_value(move_values=worst_moves, fn=max)
+        return parse_move(move_uci=move.uci())
+
+    return get_random_move(
+        _stockfish=_stockfish,
+        board=board,
+        _stockfish_move_prob=_stockfish_move_prob,
     )

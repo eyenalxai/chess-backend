@@ -9,6 +9,7 @@ from app.util.move import (
     get_chroma_move,
     get_contrast_move,
     get_dodger_move,
+    get_kamikaze_move,
     get_punisher_move,
     get_random_move,
     get_stockfish_move,
@@ -23,6 +24,7 @@ STRATEGY_FUNCTIONS: dict[
     "punisher": (get_punisher_move, 1 / 10),
     "chroma": (get_chroma_move, 1 / 5),
     "contrast": (get_contrast_move, 1 / 5),
+    "kamikaze": (get_kamikaze_move, 0),
 }
 
 

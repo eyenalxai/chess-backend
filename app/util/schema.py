@@ -6,8 +6,8 @@ from app.config.pydantic import Immutable
 
 StrategyName = Literal[
     "random",
-    "sidestep",
-    "snatcher",
+    "dodger",
+    "punisher",
     "chroma",
     "contrast",
     "stockfish-1",

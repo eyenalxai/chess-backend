@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from random import choice
 
+from app.util.strategy.dodger import filter_dodger_moves
+from app.util.strategy.punisher import filter_punisher_moves
 from chess import Board, Move
 from stockfish import Stockfish
 
@@ -13,8 +15,6 @@ from app.util.helper import (
 from app.util.schema import MoveOutcome, StrategyName
 from app.util.strategy.chroma import filter_chroma_moves
 from app.util.strategy.contrast import filter_contrast_moves
-from app.util.strategy.sidestep import filter_sidestep_moves
-from app.util.strategy.snatcher import filter_snatcher_moves
 
 
 def get_stockfish_move(
@@ -69,7 +69,7 @@ def get_move(
     )
 
 
-def get_sidestep_move(
+def get_dodger_move(
     stockfish: Stockfish,
     board: Board,
     stockfish_move_prob: float = 0.1,
@@ -78,11 +78,11 @@ def get_sidestep_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_moves=filter_sidestep_moves,
+        filter_moves=filter_dodger_moves,
     )
 
 
-def get_snatcher_move(
+def get_punisher_move(
     stockfish: Stockfish,
     board: Board,
     stockfish_move_prob: float,
@@ -91,7 +91,7 @@ def get_snatcher_move(
         stockfish=stockfish,
         board=board,
         stockfish_move_prob=stockfish_move_prob,
-        filter_moves=filter_snatcher_moves,
+        filter_moves=filter_punisher_moves,
     )
 
 

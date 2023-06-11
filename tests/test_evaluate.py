@@ -1,6 +1,6 @@
 from chess import BLACK, WHITE, Board
 
-from app.util.board_evaluation import evaluate_board
+from app.util.board_evaluation import count_opponent_pieces, evaluate_board
 from app.util.helper import evaluate_and_get_best_move
 
 
@@ -52,3 +52,10 @@ def test_simulate_move_and_evaluate() -> None:
     board.push(move=best_move)
 
     assert board.fen() == ending_fen
+
+
+def test_count_opponent_pieces() -> None:
+    board = Board(fen="k1qrb2P/2p3p1/2P1P1P1/2P5/P2p4/4PPp1/8/K4P2 w - - 0 1")
+
+    assert count_opponent_pieces(board=board, player_color=BLACK) == 10
+    assert count_opponent_pieces(board=board, player_color=WHITE) == 8

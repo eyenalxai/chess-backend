@@ -71,12 +71,11 @@ def get_pieces_under_attack(*, board: Board, player_color: bool) -> list[int]:
     ]
 
 
-def count_opponent_pieces(*, board: Board, player_color: bool) -> int:
-    opponent_color = not player_color
+def count_opponent_pieces(*, board: Board, player_color: Color) -> int:
     return sum(
         1
         for square in SQUARES
-        if (piece := board.piece_at(square)) and piece.color == opponent_color
+        if (piece := board.piece_at(square=square)) and piece.color != player_color
     )
 
 

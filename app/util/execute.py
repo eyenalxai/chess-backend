@@ -95,7 +95,6 @@ def execute_move(
             from_square=square_name(square=move.from_square),
             to_square=square_name(square=move.to_square),
             promotion=chess_move.promotion,
-            uci=move.uci(),
         ),
         game_outcome=None,
     )

@@ -39,7 +39,6 @@ def parse_move(*, move_uci: str) -> MoveOutcome:
             chess_move=ChessMove(
                 from_square=move_uci[:2],
                 to_square=move_uci[2:],
-                uci=move_uci,
             )
         )
 
@@ -49,7 +48,6 @@ def parse_move(*, move_uci: str) -> MoveOutcome:
                 from_square=move_uci[:2],
                 to_square=move_uci[2:4],
                 promotion=move_uci[4],
-                uci=move_uci,
             )
         )
 

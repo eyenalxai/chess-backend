@@ -14,10 +14,10 @@ from app.util.helper import (
     should_do_stockfish_move,
 )
 from app.util.schema import MoveOutcome, StrategyName
+from app.util.strategy.checkmate_express import get_worst_moves
 from app.util.strategy.chroma import filter_chroma_moves
 from app.util.strategy.contrast import filter_contrast_moves
 from app.util.strategy.dodger import filter_dodger_moves
-from app.util.strategy.kamikaze import get_worst_moves
 from app.util.strategy.punisher import filter_punisher_moves
 
 
@@ -124,7 +124,7 @@ def get_contrast_move(
     )
 
 
-def get_kamikaze_move(
+def get_checkmate_express_move(
     _stockfish: Stockfish,
     board: Board,
     _stockfish_move_prob: float,

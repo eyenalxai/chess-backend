@@ -1,9 +1,9 @@
-from chess import Move, Board
+from chess import Board, Move
 
 from app.util.board_evaluation import (
-    simulate_move_and_evaluate,
     NoMovesToEvaluateError,
     evaluate_and_get_optimal_move,
+    simulate_move_and_evaluate,
 )
 from app.util.schema import MoveEvaluation
 

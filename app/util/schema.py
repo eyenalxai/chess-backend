@@ -10,7 +10,7 @@ StrategyName = Literal[
     "punisher",
     "chroma",
     "contrast",
-    "kamikaze",
+    "checkmate-express",
     "stockfish-1",
     "stockfish-10",
     "stockfish-100",

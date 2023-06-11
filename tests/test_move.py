@@ -6,10 +6,10 @@ from stockfish import Stockfish
 from app.util.fish.get_fish import get_stockfish
 from app.util.helper import get_piece_type
 from app.util.move import (
+    get_checkmate_express_move,
     get_chroma_move,
     get_contrast_move,
     get_dodger_move,
-    get_kamikaze_move,
     get_punisher_move,
 )
 from app.util.schema import MoveOutcome
@@ -88,12 +88,12 @@ def test_get_contrast_move() -> None:
     )
 
 
-def test_get_kamikaze_move() -> None:
+def test_get_checkmate_express_move() -> None:
     starting_fen = "k7/8/8/8/5p2/8/K3P3/8 w - - 0 1"
     ending_fen = "k7/8/8/8/5p2/4P3/K7/8 b - - 0 1"
 
     assert execute_move(
-        get_move=get_kamikaze_move,
+        get_move=get_checkmate_express_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
@@ -102,7 +102,7 @@ def test_get_kamikaze_move() -> None:
     ending_fen = "k7/8/8/8/8/6p1/K6Q/8 b - - 1 1"
 
     assert execute_move(
-        get_move=get_kamikaze_move,
+        get_move=get_checkmate_express_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
@@ -111,7 +111,7 @@ def test_get_kamikaze_move() -> None:
     ending_fen = "3k4/3n4/1p6/8/2R1P3/6p1/7Q/K7 b - - 1 1"
 
     assert execute_move(
-        get_move=get_kamikaze_move,
+        get_move=get_checkmate_express_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
@@ -120,7 +120,7 @@ def test_get_kamikaze_move() -> None:
     ending_fen = "3kR3/3n4/1p6/8/2R5/8/8/K7 b - - 1 1"
 
     assert execute_move(
-        get_move=get_kamikaze_move,
+        get_move=get_checkmate_express_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )
@@ -129,7 +129,7 @@ def test_get_kamikaze_move() -> None:
     ending_fen = "ppP5/kpP1n3/ppP5/PPP2Q2/1p6/5p2/8/K1R3P1 b - - 2 1"
 
     assert execute_move(
-        get_move=get_kamikaze_move,
+        get_move=get_checkmate_express_move,
         starting_fen=starting_fen,
         ending_fen=ending_fen,
     )

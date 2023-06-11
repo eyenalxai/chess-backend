@@ -17,6 +17,7 @@ def execute_move(
     board = Board(fen=starting_fen)
     stockfish = get_stockfish()
     stockfish_move_prob = 0
+
     move = get_move(stockfish, board, stockfish_move_prob)
 
     if not move.chess_move:

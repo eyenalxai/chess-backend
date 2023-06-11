@@ -105,13 +105,27 @@ def get_move_with_highest_eval(
     return max(move_values, key=lambda move_value: move_value.value).move
 
 
+def is_square_under_attack(*, board: Board, square: int, player_color: bool) -> bool:
+    return board.is_attacked_by(color=not player_color, square=square)
+
+
+def is_piece_on_square_of_player_color(
+    *, board: Board, square: int, player_color: bool
+) -> bool:
+    piece = board.piece_at(square=square)
+    return piece is not None and piece.color == player_color
+
+
 def get_pieces_under_attack(*, board: Board, player_color: bool) -> list[int]:
     return [
         square
         for square in SQUARES
-        if board.is_attacked_by(color=not player_color, square=square)
-        and (piece := board.piece_at(square=square)) is not None
-        and piece.color == player_color
+        if is_square_under_attack(board=board, square=square, player_color=player_color)
+        and is_piece_on_square_of_player_color(
+            board=board,
+            square=square,
+            player_color=player_color,
+        )
     ]
 
 

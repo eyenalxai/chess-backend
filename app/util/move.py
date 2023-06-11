@@ -106,7 +106,7 @@ def get_chroma_move(
     chroma_moves = [
         move
         for move in board.legal_moves
-        if square_color(square=move.to_square) != int(board.turn)
+        if square_color(square=move.to_square) == int(board.turn)
     ]
 
     if should_do_stockfish(
@@ -136,7 +136,7 @@ def get_contrast_move(
     contrast_moves = [
         move
         for move in board.legal_moves
-        if square_color(square=move.to_square) == int(board.turn)
+        if square_color(square=move.to_square) != int(board.turn)
     ]
 
     if should_do_stockfish(

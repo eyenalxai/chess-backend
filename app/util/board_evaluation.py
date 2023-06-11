@@ -63,7 +63,7 @@ def get_pieces_under_attack(*, board: Board, player_color: bool) -> list[int]:
         square
         for square in SQUARES
         if is_square_under_attack(board=board, square=square, player_color=player_color)
-        and is_piece_on_square_of_player_color(
+        and is_players_piece_on_square(
             board=board,
             square=square,
             player_color=player_color,
@@ -91,7 +91,7 @@ def get_square_color(*, square: Square) -> Color:
     return WHITE if is_white_square(square=square) else BLACK
 
 
-def is_piece_on_square_of_player_color(
+def is_players_piece_on_square(
     *, board: Board, square: int, player_color: bool
 ) -> bool:
     piece = board.piece_at(square=square)

@@ -11,6 +11,8 @@ StrategyName = Literal[
     "monochrome",
     "dichrome",
     "checkmate-express",
+    "random-strategy",
+    "stockfish",
     "stockfish-1",
     "stockfish-10",
     "stockfish-100",

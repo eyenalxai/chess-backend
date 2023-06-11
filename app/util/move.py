@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from random import choice
+from typing import cast
 
 from chess import Board, Move
 from stockfish import Stockfish
@@ -142,3 +143,83 @@ def get_checkmate_express_move(
         board=board,
         _stockfish_move_prob=_stockfish_move_prob,
     )
+
+
+def get_random_strategy_move(
+    stockfish: Stockfish,
+    board: Board,
+    stockfish_move_prob: float,
+) -> MoveOutcome:
+    strategies: list[StrategyName] = [
+        "random-move",
+        "elusive",
+        "predator",
+        "monochrome",
+        "dichrome",
+        "checkmate-express",
+        "stockfish",
+    ]
+
+    strategy = choice(strategies)
+
+    if strategy == "stockfish":
+        return get_stockfish_move(
+            stockfish=stockfish,
+            strategy_name=cast(
+                StrategyName,
+                choice(
+                    [
+                        "stockfish-1",
+                        "stockfish-10",
+                        "stockfish-100",
+                        "stockfish-500",
+                        "stockfish-1000",
+                    ]
+                ),
+            ),
+            fen_string=board.fen(),
+        )
+
+    if strategy == "random-move":
+        return get_random_move(
+            _stockfish=stockfish,
+            board=board,
+            _stockfish_move_prob=stockfish_move_prob,
+        )
+
+    if strategy == "elusive":
+        return get_elusive_move(
+            stockfish=stockfish,
+            board=board,
+            stockfish_move_prob=stockfish_move_prob,
+        )
+
+    if strategy == "predator":
+        return get_predator_move(
+            stockfish=stockfish,
+            board=board,
+            stockfish_move_prob=stockfish_move_prob,
+        )
+
+    if strategy == "monochrome":
+        return get_monochrome_move(
+            stockfish=stockfish,
+            board=board,
+            stockfish_move_prob=stockfish_move_prob,
+        )
+
+    if strategy == "dichrome":
+        return get_dichrome_move(
+            stockfish=stockfish,
+            board=board,
+            stockfish_move_prob=stockfish_move_prob,
+        )
+
+    if strategy == "checkmate-express":
+        return get_checkmate_express_move(
+            _stockfish=stockfish,
+            board=board,
+            _stockfish_move_prob=stockfish_move_prob,
+        )
+
+    raise Exception("Unknown strategy")

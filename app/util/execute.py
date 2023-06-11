@@ -13,6 +13,7 @@ from app.util.move import (
     get_predator_move,
     get_random_move,
     get_stockfish_move,
+    get_random_strategy_move,
 )
 from app.util.schema import ChessMove, MoveOutcome, StrategyName, StrategyRequest
 
@@ -25,6 +26,7 @@ STRATEGY_FUNCTIONS: dict[
     "monochrome": (get_monochrome_move, 1 / 5),
     "dichrome": (get_dichrome_move, 1 / 5),
     "checkmate-express": (get_checkmate_express_move, 0),
+    "random-strategy": (get_random_strategy_move, 0),
 }
 
 
@@ -35,6 +37,11 @@ def execute_strategy(
 ) -> MoveOutcome:
     board = Board(fen=strategy_request.fen_string)
 
+    game_outcome = get_game_outcome(board=board)
+
+    if game_outcome is not None:
+        return game_outcome
+
     if (
         not strategy_request.strategy_name.startswith("stockfish")
         and count_opponent_pieces(board=board, player_color=board.turn) == 1
@@ -44,11 +51,6 @@ def execute_strategy(
             strategy_name="stockfish-10",
             fen_string=strategy_request.fen_string,
         )
-
-    game_outcome = get_game_outcome(board=board)
-
-    if game_outcome is not None:
-        return game_outcome
 
     if strategy_request.strategy_name.startswith("stockfish"):
         return get_stockfish_move(
